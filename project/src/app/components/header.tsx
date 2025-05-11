@@ -2,18 +2,23 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getSession } from "@/lib/auth";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    getSession().then((session) => {
-      setIsLoggedIn(session.isLoggedIn);
-    });
-  }, []);
+  const router = useRouter();
 
-  if (isLoggedIn === null) return null; // or loading indicator
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status == "authenticated") {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  });
 
   return (
     <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
@@ -58,20 +63,31 @@ export default function Header() {
       <div className="space-x-3">
         {isLoggedIn ? (
           <button
-            onClick={() => setIsLoggedIn(false)}
+            onClick={() => {
+              signOut({ redirect: false }).then(() => {
+                router.push("/");
+                setIsLoggedIn(false);
+              });
+            }}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded"
           >
             Logout
           </button>
         ) : (
-          <>
-            <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded">
+          <section>
+            <Link
+              href="/auth/login"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 mx-2 rounded"
+            >
               Login
-            </button>
-            <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded">
+            </Link>
+            <Link
+              href="/auth/register"
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+            >
               Register
-            </button>
-          </>
+            </Link>
+          </section>
         )}
       </div>
     </header>
