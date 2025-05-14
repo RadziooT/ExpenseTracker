@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { register, RegisterUserRequestDTO } from "@/app/actions/register";
+import { addToast } from "@heroui/react";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -21,7 +22,16 @@ export default function RegisterPage() {
         formRef.current?.reset();
         return router.push("/auth/login");
       })
-      .catch((error) => setError(error));
+      .catch((error) => {
+        setError(error);
+        addToast({
+          title: "Oops!",
+          description: "Something went wrong when registering user",
+          color: "danger",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
+        });
+      });
   };
 
   return (

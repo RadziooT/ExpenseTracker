@@ -14,9 +14,7 @@ export const register = async (request: RegisterUserRequestDTO) => {
     await connectDB();
     const userFound = await User.findOne({ username: request.username });
     if (userFound) {
-      return {
-        error: "user already exists",
-      };
+      return Promise.reject("user already exists");
     }
     const hashedPassword = await bcrypt.hash(request.password, 10);
     const user = new User({

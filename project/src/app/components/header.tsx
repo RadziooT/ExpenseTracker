@@ -1,18 +1,31 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+import {
+  Button,
+  Link,
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  NavbarMenu,
+  NavbarMenuItem,
+  NavbarMenuToggle,
+} from "@heroui/react";
+
 export default function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
   const router = useRouter();
 
   const { status } = useSession();
 
   useEffect(() => {
+    console.log(status);
     if (status == "authenticated") {
       setIsLoggedIn(true);
     } else {
@@ -21,75 +34,95 @@ export default function Header() {
   });
 
   return (
-    <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
-      <h1 className="text-xl font-bold text-blue-600">
-        <Link href="/">Expense Tracker</Link>
-      </h1>
+    <Navbar onMenuOpenChange={setIsMenuOpen}>
+      <NavbarContent>
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          className="sm:hidden"
+        />
+        <NavbarBrand>
+          {/*TODO: logo*/}
+          <p className="font-bold text-inherit">Expense Tracker</p>
+        </NavbarBrand>
+      </NavbarContent>
 
-      <nav className="flex items-center space-x-4">
-        <Link href="/home" className="text-gray-700 hover:text-blue-500">
-          Home
-        </Link>
-
-        <Link
-          href="/expenses"
-          className={`${
-            isLoggedIn
-              ? "text-gray-700 hover:text-blue-500"
-              : "text-gray-400 cursor-not-allowed"
-          }`}
-          onClick={(e) => {
-            if (!isLoggedIn) e.preventDefault();
-          }}
-        >
-          My Expenses
-        </Link>
-
-        <Link
-          href="/statistics"
-          className={`${
-            isLoggedIn
-              ? "text-gray-700 hover:text-blue-500"
-              : "text-gray-400 cursor-not-allowed"
-          }`}
-          onClick={(e) => {
-            if (!isLoggedIn) e.preventDefault();
-          }}
-        >
-          Statistics
-        </Link>
-      </nav>
-
-      <div className="space-x-3">
+      <NavbarContent className="hidden sm:flex gap-4" justify="center">
+        <NavbarItem>
+          <Link color="foreground" href="/home">
+            Home
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="/expenses">
+            Expenses
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="/statistics">
+            Statistics
+          </Link>
+        </NavbarItem>
+      </NavbarContent>
+      <NavbarContent justify="end">
         {isLoggedIn ? (
-          <button
-            onClick={() => {
-              signOut({ redirect: false }).then(() => {
-                router.push("/");
-                setIsLoggedIn(false);
-              });
-            }}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded"
-          >
-            Logout
-          </button>
+          <NavbarItem className="hidden lg:flex">
+            <Button
+              as={Link}
+              color="primary"
+              href="#"
+              variant="flat"
+              onPress={() => {
+                signOut({ redirect: false }).then(() => {
+                  router.push("/");
+                  setIsLoggedIn(false);
+                });
+              }}
+            >
+              Logout
+            </Button>
+          </NavbarItem>
         ) : (
-          <section>
-            <Link
-              href="/auth/login"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 mx-2 rounded"
-            >
-              Login
-            </Link>
-            <Link
-              href="/auth/register"
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
-            >
-              Register
-            </Link>
-          </section>
+          <>
+            <NavbarItem>
+              <Button
+                as={Link}
+                color="secondary"
+                href="/auth/login"
+                variant="flat"
+              >
+                Login
+              </Button>
+            </NavbarItem>
+            <NavbarItem>
+              <Button
+                as={Link}
+                color="secondary"
+                href="/auth/register"
+                variant="flat"
+              >
+                Sign Up
+              </Button>
+            </NavbarItem>
+          </>
         )}
-      </div>
-    </header>
+      </NavbarContent>
+      <NavbarMenu>
+        <NavbarMenuItem>
+          <Link color="foreground" href="/home">
+            Home
+          </Link>
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <Link color="foreground" href="/expenses">
+            Expenses
+          </Link>
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <Link color="foreground" href="/statistics">
+            Statistics
+          </Link>
+        </NavbarMenuItem>
+      </NavbarMenu>
+    </Navbar>
   );
 }
