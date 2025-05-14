@@ -9,7 +9,9 @@ import {
   parseDate,
   today,
 } from "@internationalized/date";
-import Transaction from "@/types/transaction"; // theme css file
+import Transaction from "@/types/transaction";
+import NewTransactionFormModal from "@/app/components/modals/NewTransactionForm";
+import { Button } from "@heroui/react"; // theme css file
 
 function fetchMockData() {
   return {
@@ -107,6 +109,8 @@ export default function ExpenseListPage() {
   );
   const [dateTo, setDateTo] = useState<CalendarDate>(today(getLocalTimeZone()));
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   useEffect(() => {
     const data = fetchMockData().data;
     setData(data);
@@ -149,9 +153,23 @@ export default function ExpenseListPage() {
       <div className="flex flex-wrap gap-4 mb-4">
         <h2 className="text-lg font-semibold mt-4 mb-2">Transactions</h2>
 
-        <button className="ml-auto bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600">
+        <Button
+          className="ml-auto bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+          onPress={() => setIsModalOpen(true)}
+        >
           New Expense/Income
-        </button>
+        </Button>
+        <NewTransactionFormModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            console.log("dialog closed");
+            setIsModalOpen(false);
+          }}
+          onSave={() => {
+            console.log("dialog closed with params");
+            setIsModalOpen(false);
+          }}
+        ></NewTransactionFormModal>
       </div>
 
       <div>

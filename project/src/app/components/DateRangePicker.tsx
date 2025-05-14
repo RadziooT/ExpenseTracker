@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { DatePicker } from "@heroui/date-picker";
 import { CalendarDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
+import { DatePicker } from "@heroui/react";
 
 type Props = {
   initialFromDate: CalendarDate;
