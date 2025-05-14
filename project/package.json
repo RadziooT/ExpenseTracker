@@ -9,7 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@heroui/date-picker": "^2.3.19",
+    "@heroui/react": "^2.8.0-beta.4",
+    "@heroui/system": "^2.4.15",
+    "@heroui/theme": "^2.4.15",
+    "@internationalized/date": "^3.8.0",
+    "@react-aria/i18n": "^3.12.8",
     "bcryptjs": "^3.0.2",
+    "date-fns": "^4.1.0",
+    "framer-motion": "^12.11.0",
     "mongoose": "^8.14.2",
     "next": "15.3.2",
     "next-auth": "^4.24.11",

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ReactNode } from "react";
 import { Provider } from "@/app/provider";
+import { HeroUIProvider } from "@heroui/system";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,10 +26,12 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <Provider>
-        <body>{children}</body>
-      </Provider>
-    </html>
+    <HeroUIProvider>
+      <html lang="en">
+        <Provider>
+          <body>{children}</body>
+        </Provider>
+      </html>
+    </HeroUIProvider>
   );
 }
