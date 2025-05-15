@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 import {
   Button,
@@ -14,24 +14,19 @@ import {
   NavbarMenu,
   NavbarMenuItem,
   NavbarMenuToggle,
+  Spinner,
 } from "@heroui/react";
+import { useUserContext } from "@/app/userContextProvider";
 
 export default function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-
-  const router = useRouter();
+  const { isOffline, setIsOffline, setIsUserAuthenticated } = useUserContext();
 
   const { status } = useSession();
 
   useEffect(() => {
-    console.log(status);
-    if (status == "authenticated") {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
-  });
+    setIsUserAuthenticated(status);
+  }, [status]);
 
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen}>
@@ -62,26 +57,18 @@ export default function Header() {
             Statistics
           </Link>
         </NavbarItem>
+        <NavbarItem>{isOffline ? "offline" : "online"}</NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
-        {isLoggedIn ? (
-          <NavbarItem className="hidden lg:flex">
-            <Button
-              as={Link}
-              color="primary"
-              href="#"
-              variant="flat"
-              onPress={() => {
-                signOut({ redirect: false }).then(() => {
-                  router.push("/");
-                  setIsLoggedIn(false);
-                });
-              }}
-            >
-              Logout
-            </Button>
-          </NavbarItem>
-        ) : (
+        {status == "loading" && (
+          <Spinner
+            classNames={{ label: "text-foreground mt-4" }}
+            color="success"
+            variant="dots"
+          />
+        )}
+
+        {status == "unauthenticated" && (
           <>
             <NavbarItem>
               <Button
@@ -104,6 +91,21 @@ export default function Header() {
               </Button>
             </NavbarItem>
           </>
+        )}
+
+        {status == "authenticated" && (
+          <NavbarItem className="hidden lg:flex">
+            <Button
+              as={Link}
+              color="primary"
+              variant="flat"
+              onPress={() => {
+                signOut({ callbackUrl: "/home" }).then(() => {});
+              }}
+            >
+              Logout
+            </Button>
+          </NavbarItem>
         )}
       </NavbarContent>
       <NavbarMenu>

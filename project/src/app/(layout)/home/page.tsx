@@ -4,51 +4,59 @@ import { ArcElement, Chart, Legend, Tooltip } from "chart.js";
 import { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { Spinner } from "@heroui/react";
+import { getCachedUserData } from "@/app/services/initService";
+import { useUserContext } from "@/app/userContextProvider";
 
 Chart.register(ArcElement, Tooltip, Legend);
-
-function fetchMockData() {
-  return {
-    userData: {
-      username: "Alice",
-      setSpendingBudget: 1500,
-      setOverallBudget: 3000,
-      thisMonthIncomeCount: 2200,
-      thisMonthExpensesCount: 1800,
-    },
-    chartEntries: [
-      { type: "Food", amount: 500, count: 5 },
-      { type: "Transport", amount: 300, count: 3 },
-      { type: "General", amount: 700, count: 4 },
-      { type: "Misc", amount: 300, count: 2 },
-    ],
-  };
-}
 
 export default function Home() {
   const [data, setData] = useState<any>(null);
   const [pieData, setPieData] = useState<any>(null);
+  const [budgetDiff, setBudgetDiff] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { userId, isUserAuthenticated, setIsOffline, setIsUserAuthenticated } =
+    useUserContext();
+
+  let status = "";
+  let color = "";
 
   useEffect(() => {
-    const data = fetchMockData();
+    getCachedUserData().then((data) => {
+      const pieChart = {
+        labels: data.chartEntries.map((entry: any) => entry.type),
+        datasets: [
+          {
+            label: "Expenses",
+            data: data.chartEntries.map((entry: any) => entry.amount),
+            backgroundColor: ["#36A2EB", "#FF6384", "#FFCE56", "#4BC0C0"],
+            borderWidth: 1,
+          },
+        ],
+      };
+      console.log(data.userData);
+      setBudgetDiff(
+        data.userData.setSpendingBudget - data.userData.thisMonthExpensesCount,
+      );
 
-    const pieChart = {
-      labels: data.chartEntries.map((entry) => entry.type),
-      datasets: [
-        {
-          label: "Expenses",
-          data: data.chartEntries.map((entry) => entry.amount),
-          backgroundColor: ["#36A2EB", "#FF6384", "#FFCE56", "#4BC0C0"],
-          borderWidth: 1,
-        },
-      ],
-    };
+      if (budgetDiff > -200) {
+        status = "Over budget :(";
+        color = "text-red-600";
+      } else if (budgetDiff < 200) {
+        status = "Spend carefully you're near your budget";
+        color = "text-yellow-600";
+      } else {
+        status = "Well below budget keep going";
+        color = "text-green-600";
+      }
 
-    setData(data.userData);
-    setPieData(pieChart);
+      setData(data.userData);
+      setPieData(pieChart);
+
+      setIsLoading(false);
+    });
   }, []);
 
-  if (!data || !pieData)
+  if (isLoading)
     return (
       <div className="min-h-screen flex items-center justify-center text-lg font-medium">
         <Spinner
@@ -60,27 +68,17 @@ export default function Home() {
       </div>
     );
 
-  let { username, setSpendingBudget, thisMonthExpensesCount } = data;
-
-  const budgetDiff = setSpendingBudget - thisMonthExpensesCount;
-  let status = "";
-  let color = "";
-
-  if (budgetDiff > -200) {
-    status = "Over budget :(";
-    color = "text-red-600";
-  } else if (budgetDiff < 200) {
-    status = "Spend carefully you're near your budget";
-    color = "text-yellow-600";
-  } else {
-    status = "Well below budget keep going";
-    color = "text-green-600";
-  }
+  if (isUserAuthenticated != "authenticated")
+    return (
+      <div className="min-h-screen flex items-center justify-center text-lg font-medium">
+        Log in to use app
+      </div>
+    );
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center text-center px-4">
       <div className="mt-6">
-        <h1 className="text-2xl font-semibold">Welcome, {username}!</h1>
+        <h1 className="text-2xl font-semibold">Welcome, {data.firstName}!</h1>
         <div className="flex-col items-center text-center px-4 border-solid rounded-xl outline-black">
           <p>Current budget</p>
           <p className={color}>{budgetDiff}</p>

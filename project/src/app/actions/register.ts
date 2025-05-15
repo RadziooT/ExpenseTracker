@@ -21,6 +21,10 @@ export const register = async (request: RegisterUserRequestDTO) => {
       username: request.username,
       password: hashedPassword,
       firstName: request.firstName,
+      setSpendingBudget: 1000,
+      setOverallBudget: 1000,
+      thisMonthIncomeCount: 1000,
+      thisMonthExpensesCount: 1000,
     });
 
     await user.save();

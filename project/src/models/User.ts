@@ -5,8 +5,11 @@ export interface UserDocument extends TimeData {
   _id: string;
   username: string;
   password: string;
-  email: string;
   firstName: string;
+  setSpendingBudget: number;
+  setOverallBudget: number;
+  thisMonthIncomeCount: number;
+  thisMonthExpensesCount: number;
 }
 
 const UserSchema = new Schema<UserDocument>(
@@ -23,6 +26,22 @@ const UserSchema = new Schema<UserDocument>(
     firstName: {
       type: String,
       required: [true, "Name is required"],
+    },
+    setSpendingBudget: {
+      type: Number,
+      default: 0,
+    },
+    setOverallBudget: {
+      type: Number,
+      default: 0,
+    },
+    thisMonthIncomeCount: {
+      type: Number,
+      default: 0,
+    },
+    thisMonthExpensesCount: {
+      type: Number,
+      default: 0,
     },
   },
   {

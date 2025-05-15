@@ -1,63 +1,77 @@
 "use client";
 
-import { FormEvent } from "react";
+import React, { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useUserContext } from "@/app/userContextProvider";
+import { saveUserData } from "@/app/services/frontendDbService";
+import { initAndCacheUserData } from "@/app/services/initService";
+import { Button, Input } from "@heroui/react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { userId, isOffline, setUserId, setIsOffline } = useUserContext();
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const login = async () => {
     const res = await signIn("credentials", {
-      username: formData.get("username"),
-      password: formData.get("password"),
+      username,
+      password,
       redirect: false,
     });
     if (res?.error) {
       // setError(res.error as string);
     }
     if (res?.ok) {
-      return router.push("/");
+      console.log(res);
+
+      const data = await initAndCacheUserData(username);
+      console.log(data);
+      setIsOffline(false);
+      await saveUserData(data);
+      return router.push("/home");
     }
   };
 
   return (
     <section>
       <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 items-center flex flex-col"
+      <Input
+        isRequired
+        isClearable
+        label="Username"
+        name="username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        onClear={() => setUsername("")}
+      />
+
+      <Input
+        label="Password"
+        placeholder="Enter your password"
+        isClearable
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        onClear={() => setPassword("")}
+      />
+
+      <Button
+        type="submit"
+        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        onPress={() => login()}
       >
-        <input
-          type="text"
-          placeholder="Username"
-          className="w-full border px-3 py-2 rounded"
-          required
-          name="username"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border px-3 py-2 rounded"
-          required
-          name="password"
-        />
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          Login
-        </button>
-        <Link
-          href="/auth/register"
-          className="text-sm text-[#888] transition duration-150 ease hover:text-black"
-        >
-          Don't have an account?
-        </Link>
-      </form>
+        Login
+      </Button>
+
+      <Link
+        href="/auth/register"
+        className="text-sm text-[#888] transition duration-150 ease hover:text-black"
+      >
+        Don't have an account?
+      </Link>
     </section>
   );
 }
