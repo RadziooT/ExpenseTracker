@@ -17,10 +17,19 @@ import React, { useState } from "react";
 import { I18nProvider } from "@react-aria/i18n";
 import { getLocalTimeZone, today } from "@internationalized/date";
 
+export interface NewTransactionFormData {
+  isExpense: boolean;
+  title: string;
+  amount: string;
+  currency: string;
+  date: string;
+  category: string;
+}
+
 type ModalFormProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (transaction: any) => void;
+  onSave: (transaction: NewTransactionFormData) => void;
 };
 
 export default function NewTransactionFormModal({
@@ -135,7 +144,19 @@ export default function NewTransactionFormModal({
           <Button color="danger" variant="light" onPress={onClose}>
             Cancel
           </Button>
-          <Button color="success" onPress={() => onSave(form)}>
+          <Button
+            color="success"
+            onPress={() =>
+              onSave({
+                isExpense: form.isExpense,
+                title: form.title,
+                amount: form.amount,
+                currency: form.currency,
+                date: form.date.toString(),
+                category: form.category,
+              })
+            }
+          >
             Save
           </Button>
         </ModalFooter>

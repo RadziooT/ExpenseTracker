@@ -27,15 +27,15 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <HeroUIProvider>
-      <ToastProvider />
-      <html lang="en">
-        <Provider>
-          <UserProvider>
+    <UserProvider>
+      <HeroUIProvider>
+        <ToastProvider />
+        <html lang="en">
+          <Provider>
             <body>{children}</body>
-          </UserProvider>
-        </Provider>
-      </html>
-    </HeroUIProvider>
+          </Provider>
+        </html>
+      </HeroUIProvider>
+    </UserProvider>
   );
 }

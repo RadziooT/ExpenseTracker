@@ -4,7 +4,7 @@ import { ArcElement, Chart, Legend, Tooltip } from "chart.js";
 import { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { Spinner } from "@heroui/react";
-import { getCachedUserData } from "@/app/services/initService";
+import { getCachedChartData, getCachedUserData } from "@/services/initService";
 import { useUserContext } from "@/app/userContextProvider";
 
 Chart.register(ArcElement, Tooltip, Legend);
@@ -21,38 +21,41 @@ export default function Home() {
   let color = "";
 
   useEffect(() => {
-    getCachedUserData().then((data) => {
-      const pieChart = {
-        labels: data.chartEntries.map((entry: any) => entry.type),
-        datasets: [
-          {
-            label: "Expenses",
-            data: data.chartEntries.map((entry: any) => entry.amount),
-            backgroundColor: ["#36A2EB", "#FF6384", "#FFCE56", "#4BC0C0"],
-            borderWidth: 1,
-          },
-        ],
-      };
-      console.log(data.userData);
-      setBudgetDiff(
-        data.userData.setSpendingBudget - data.userData.thisMonthExpensesCount,
-      );
+    getCachedUserData().then((userData) => {
+      getCachedChartData().then((chartData) => {
+        const pieChart = {
+          labels: chartData.map((entry: any) => entry.entry.label),
+          datasets: [
+            chartData.map((entry: any) => ({
+              label: entry.entry.label,
+              data: entry.entry.amount,
+              backgroundColor: entry.entry.color,
+              borderWidth: 1,
+            })),
+          ],
+        };
+        console.log(pieChart);
 
-      if (budgetDiff > -200) {
-        status = "Over budget :(";
-        color = "text-red-600";
-      } else if (budgetDiff < 200) {
-        status = "Spend carefully you're near your budget";
-        color = "text-yellow-600";
-      } else {
-        status = "Well below budget keep going";
-        color = "text-green-600";
-      }
+        setBudgetDiff(
+          userData.spendingBudget - userData.currentMonthExpensesCount,
+        );
 
-      setData(data.userData);
-      setPieData(pieChart);
+        if (budgetDiff > -200) {
+          status = "Over budget :(";
+          color = "text-red-600";
+        } else if (budgetDiff < 200) {
+          status = "Spend carefully you're near your budget";
+          color = "text-yellow-600";
+        } else {
+          status = "Well below budget keep going";
+          color = "text-green-600";
+        }
 
-      setIsLoading(false);
+        setData(userData);
+        setPieData(pieChart);
+
+        setIsLoading(false);
+      });
     });
   }, []);
 

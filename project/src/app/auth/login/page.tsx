@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useUserContext } from "@/app/userContextProvider";
-import { saveUserData } from "@/app/services/frontendDbService";
-import { initAndCacheUserData } from "@/app/services/initService";
+import { initAndCacheUserData } from "@/services/initService";
 import { Button, Input } from "@heroui/react";
+import { saveUserData } from "@/services/frontendDb/userService";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,12 +26,9 @@ export default function LoginPage() {
       // setError(res.error as string);
     }
     if (res?.ok) {
-      console.log(res);
-
       const data = await initAndCacheUserData(username);
-      console.log(data);
+      setUserId(data.userData.userId);
       setIsOffline(false);
-      await saveUserData(data);
       return router.push("/home");
     }
   };

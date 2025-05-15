@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
 
 import {
   Button,
-  Link,
   Navbar,
   NavbarBrand,
   NavbarContent,
@@ -17,6 +15,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { useUserContext } from "@/app/userContextProvider";
+import Link from "next/link";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -96,7 +95,6 @@ export default function Header() {
         {status == "authenticated" && (
           <NavbarItem className="hidden lg:flex">
             <Button
-              as={Link}
               color="primary"
               variant="flat"
               onPress={() => {

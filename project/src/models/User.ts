@@ -6,10 +6,9 @@ export interface UserDocument extends TimeData {
   username: string;
   password: string;
   firstName: string;
-  setSpendingBudget: number;
-  setOverallBudget: number;
-  thisMonthIncomeCount: number;
-  thisMonthExpensesCount: number;
+  spendingBudget: number;
+  currentMonthIncomeCount: number;
+  currentMonthExpensesCount: number;
 }
 
 const UserSchema = new Schema<UserDocument>(
@@ -27,19 +26,15 @@ const UserSchema = new Schema<UserDocument>(
       type: String,
       required: [true, "Name is required"],
     },
-    setSpendingBudget: {
+    spendingBudget: {
       type: Number,
       default: 0,
     },
-    setOverallBudget: {
+    currentMonthIncomeCount: {
       type: Number,
       default: 0,
     },
-    thisMonthIncomeCount: {
-      type: Number,
-      default: 0,
-    },
-    thisMonthExpensesCount: {
+    currentMonthExpensesCount: {
       type: Number,
       default: 0,
     },

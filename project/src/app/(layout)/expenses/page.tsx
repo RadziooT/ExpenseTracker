@@ -1,105 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import TransactionDetails from "@/app/components/transactionDetails";
-import DateRangePicker from "@/app/components/DateRangePicker";
+import TransactionDetails from "@/components/transactionDetails";
+import DateRangePicker from "@/components/DateRangePicker";
 import {
   CalendarDate,
   getLocalTimeZone,
+  isToday,
   parseDate,
   today,
 } from "@internationalized/date";
 import Transaction from "@/types/transaction";
-import NewTransactionFormModal from "@/app/components/modals/NewTransactionForm";
-import { Button } from "@heroui/react"; // theme css file
-
-function fetchMockData() {
-  return {
-    data: [
-      {
-        id: "1",
-        isExpense: false,
-        title: "Food",
-        amount: 400,
-        currency: "USD",
-        date: "2025-05-05",
-        category: "Food",
-      },
-      {
-        id: "2",
-        isExpense: false,
-        title: "Transport",
-        amount: 250,
-        currency: "USD",
-        date: "2025-05-10",
-        category: "Transport",
-      },
-      {
-        id: "3",
-        isExpense: false,
-        title: "Health",
-        amount: 600,
-        currency: "USD",
-        date: "2025-04-18",
-        category: "Health",
-      },
-      {
-        id: "4",
-        isExpense: true,
-        title: "Health",
-        amount: 300,
-        currency: "USD",
-        date: "2025-03-12",
-        category: "Health",
-      },
-      {
-        id: "5",
-        isExpense: false,
-        title: "Misc",
-        amount: 300,
-        currency: "USD",
-        date: "2025-02-20",
-        category: "Misc",
-      },
-      {
-        id: "6",
-        isExpense: true,
-        title: "Dining Out",
-        amount: 120,
-        currency: "USD",
-        date: "2025-05-12",
-        category: "Food",
-      },
-      {
-        id: "7",
-        isExpense: true,
-        title: "Groceries",
-        amount: 180,
-        currency: "USD",
-        date: "2025-05-20",
-        category: "Food",
-      },
-      {
-        id: "8",
-        isExpense: true,
-        title: "Subscription",
-        amount: 90,
-        currency: "USD",
-        date: "2025-05-25",
-        category: "Entertainment",
-      },
-      {
-        id: "9",
-        isExpense: true,
-        title: "Gym Membership",
-        amount: 50,
-        currency: "USD",
-        date: "2025-01-10",
-        category: "Health",
-      },
-    ],
-  };
-}
+import NewTransactionFormModal, {
+  NewTransactionFormData,
+} from "@/components/modals/NewTransactionForm";
+import { Button } from "@heroui/react";
+import { useUserContext } from "@/app/userContextProvider";
+import {
+  getUserTransactions,
+  GetUserTransactionsRequestDTO,
+} from "@/actions/getUserTransactions";
+import {
+  clearTransaction,
+  getAllTransactions,
+} from "@/services/frontendDb/transactionService";
+import {
+  addUserTransaction,
+  AddUserTransactionsRequestDTO,
+} from "@/actions/addUserTransaction";
+import { deleteUserTransaction } from "@/actions/deleteUserTransaction";
 
 export default function ExpenseListPage() {
   const [data, setData] = useState<Array<Transaction>>([]);
@@ -108,32 +37,70 @@ export default function ExpenseListPage() {
     today(getLocalTimeZone()).subtract({ months: 1 }),
   );
   const [dateTo, setDateTo] = useState<CalendarDate>(today(getLocalTimeZone()));
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const { userId, isOffline } = useUserContext();
+
   useEffect(() => {
-    const data = fetchMockData().data;
-    setData(data);
-    filterByDate(data);
+    if (isOffline) {
+      getAllTransactions().then((transactions) => {
+        setData(transactions);
+        filterByDate(data);
+      });
+    } else {
+      const request: GetUserTransactionsRequestDTO = {
+        userId: userId!,
+        dateFrom: dateFrom.toString(),
+        dateTo: dateTo.toString(),
+      };
+      getUserTransactions(request).then((transactionData) => {
+        const newData = transactionData.transactions;
+        setData(newData);
+        filterByDate(newData);
+      });
+    }
   }, []);
 
-  function deleteItem(transaction: Transaction) {
-    const index = data.indexOf(transaction, 0);
-    console.log(data);
-    if (index > -1) {
-      data.splice(index, 1);
-    }
-    console.log(data);
+  useEffect(() => {
     filterByDate(data);
+  }, [data, dateFrom, dateTo]);
+
+  function deleteItem(transaction: Transaction) {
+    const now = new Date();
+    const check = new Date(transaction.date);
+
+    if (check.getMonth() == now.getMonth()) {
+      clearTransaction(transaction.id).then(() => {
+        deleteUserTransaction({ transactionId: transaction.id }).then(() =>
+          filterByDate(data),
+        );
+      });
+    } else {
+      deleteUserTransaction({ transactionId: transaction.id }).then(() =>
+        filterByDate(data),
+      );
+    }
   }
 
   function filterByDate(list: Array<Transaction>): void {
-    console.log(list);
     const data = list.filter((item: Transaction) => {
       const date = parseDate(item.date);
-      return date.compare(dateFrom) > 0 && date.compare(dateTo) < 0;
+      return date.compare(dateFrom) > 0 && date.compare(dateTo) <= 0;
     });
     setFilteredData(data);
+  }
+
+  function saveTransaction(data: NewTransactionFormData) {
+    const transaction: AddUserTransactionsRequestDTO = {
+      userId: userId!,
+      isExpense: data.isExpense,
+      title: data.title,
+      amount: data.amount,
+      currency: data.currency,
+      date: data.date,
+      category: data.category,
+    };
+    addUserTransaction(transaction).then(() => {});
   }
 
   return (
@@ -141,12 +108,12 @@ export default function ExpenseListPage() {
       <h1 className="text-2xl font-bold mb-4">My Income & Expenses</h1>
 
       <DateRangePicker
+        disabled={isOffline}
         initialFromDate={dateFrom}
         initialToDate={dateTo}
         onSearch={(range) => {
           setDateFrom(range.fromDate);
           setDateTo(range.toDate);
-          filterByDate(data);
         }}
       />
 
@@ -162,11 +129,10 @@ export default function ExpenseListPage() {
         <NewTransactionFormModal
           isOpen={isModalOpen}
           onClose={() => {
-            console.log("dialog closed");
             setIsModalOpen(false);
           }}
-          onSave={() => {
-            console.log("dialog closed with params");
+          onSave={(data: NewTransactionFormData) => {
+            saveTransaction(data);
             setIsModalOpen(false);
           }}
         ></NewTransactionFormModal>

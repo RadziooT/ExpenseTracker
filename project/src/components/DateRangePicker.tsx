@@ -3,15 +3,17 @@
 import React, { useState } from "react";
 import { CalendarDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";
-import { DatePicker } from "@heroui/react";
+import { Button, DatePicker } from "@heroui/react";
 
 type Props = {
+  disabled?: boolean;
   initialFromDate: CalendarDate;
   initialToDate: CalendarDate;
   onSearch: (range: { fromDate: CalendarDate; toDate: CalendarDate }) => void;
 };
 
 export default function DateRangePicker({
+  disabled = false,
   initialFromDate,
   initialToDate,
   onSearch,
@@ -20,7 +22,6 @@ export default function DateRangePicker({
   const [toDate, setToDate] = React.useState<CalendarDate>(initialToDate);
 
   const handleSearch = () => {
-    console.log(fromDate);
     onSearch({
       fromDate,
       toDate,
@@ -39,6 +40,7 @@ export default function DateRangePicker({
               firstDayOfWeek="mon"
               label="From"
               value={fromDate}
+              isDisabled={disabled}
               onChange={(date) => setFromDate(date!)}
             />
 
@@ -49,17 +51,22 @@ export default function DateRangePicker({
               firstDayOfWeek="mon"
               label="To"
               value={toDate}
+              isDisabled={disabled}
               onChange={(date) => setToDate(date!)}
             />
           </I18nProvider>
         </div>
 
-        <button
-          onClick={handleSearch}
-          className="ml-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Search
-        </button>
+        {disabled ? (
+          <p>In offline mode only current month data is available</p>
+        ) : (
+          <Button
+            onPress={handleSearch}
+            className="ml-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Search
+          </Button>
+        )}
       </div>
     </div>
   );

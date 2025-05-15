@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { register, RegisterUserRequestDTO } from "@/app/actions/register";
+import { register, RegisterUserRequestDTO } from "@/actions/register";
 import { addToast } from "@heroui/react";
 import Link from "next/link";
 

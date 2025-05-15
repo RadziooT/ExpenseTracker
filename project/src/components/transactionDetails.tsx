@@ -44,7 +44,7 @@ export default function TransactionDetails({
   };
 
   return (
-    <div className="flex items-center justify-between border p-4 rounded-md shadow-sm">
+    <div className="flex items-center justify-between w-full">
       <div className="flex-shrink-0">
         <div className="flex items-center justify-center h-full">
           {getCategoryIcon(transactionData.category)}
