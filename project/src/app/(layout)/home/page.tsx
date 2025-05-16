@@ -26,15 +26,14 @@ export default function Home() {
         const pieChart = {
           labels: chartData.map((entry: any) => entry.entry.label),
           datasets: [
-            chartData.map((entry: any) => ({
-              label: entry.entry.label,
-              data: entry.entry.amount,
-              backgroundColor: entry.entry.color,
+            {
+              label: "test",
+              data: chartData.map((entry: any) => entry.entry.amount),
+              backgroundColor: chartData.map((entry: any) => entry.entry.color),
               borderWidth: 1,
-            })),
+            },
           ],
         };
-        console.log(pieChart);
 
         setBudgetDiff(
           userData.spendingBudget - userData.currentMonthExpensesCount,
