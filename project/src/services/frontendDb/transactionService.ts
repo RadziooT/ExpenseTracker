@@ -1,10 +1,11 @@
 import { initDB } from "@/services/frontendDb/initDB";
 import { TRANSACTION_DATA_STORE } from "@/services/frontendDb/storeDefinitions";
+import TransactionData from "@/types/transactionData";
 
 export const saveTransactions = async (data: any) => {
   const db = await initDB();
 
-  const dbTransaction = db.transaction("transactionData", "readwrite");
+  const dbTransaction = db.transaction(TRANSACTION_DATA_STORE, "readwrite");
 
   await Promise.all([
     data.forEach((entry: any) => {
@@ -27,4 +28,17 @@ export const getAllTransactions = async () => {
 export const clearTransaction = async (id: string) => {
   const db = await initDB();
   await db.delete(TRANSACTION_DATA_STORE, id);
+};
+
+export const refreshTransactions = async (data: Array<TransactionData>) => {
+  const db = await initDB();
+  const dbTransaction = db.transaction(TRANSACTION_DATA_STORE, "readwrite");
+  await dbTransaction.store.clear();
+  await Promise.all([
+    data.forEach((entry: any) => {
+      dbTransaction.store.put({ id: "current", entry });
+    }),
+    dbTransaction.done,
+  ]);
+  return;
 };

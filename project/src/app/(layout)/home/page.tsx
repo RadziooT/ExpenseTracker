@@ -22,8 +22,6 @@ export default function Home() {
   let color = "";
 
   useEffect(() => {
-    console.log("Use effect?");
-
     getCachedUserData().then((userData) => {
       getCachedChartData().then((chartData: SummaryChart) => {
         const pieChart = {

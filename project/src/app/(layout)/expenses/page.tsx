@@ -7,6 +7,7 @@ import {
   CalendarDate,
   getLocalTimeZone,
   parseDate,
+  startOfMonth,
   today,
 } from "@internationalized/date";
 import TransactionData from "@/types/transactionData";
@@ -22,6 +23,7 @@ import {
 import {
   clearTransaction,
   getAllTransactions,
+  refreshTransactions,
 } from "@/services/frontendDb/transactionService";
 import {
   addUserTransaction,
@@ -31,16 +33,21 @@ import { deleteUserTransaction } from "@/actions/deleteUserTransaction";
 import Loading from "@/components/global/Loading";
 
 export default function ExpenseListPage() {
+  let dateFrom: CalendarDate = startOfMonth(today(getLocalTimeZone()));
+  let dateTo: CalendarDate = today(getLocalTimeZone());
   const [data, setData] = useState<Array<TransactionData>>([]);
-  const [filteredData, setFilteredData] = useState<Array<TransactionData>>([]);
-  const [dateFrom, setDateFrom] = useState<CalendarDate>(
-    today(getLocalTimeZone()).subtract({ months: 1 }),
-  );
-  const [dateTo, setDateTo] = useState<CalendarDate>(today(getLocalTimeZone()));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { userId, isOffline } = useUserContext();
+
+  function setDateRange(
+    newDateFrom: CalendarDate,
+    newDateTo: CalendarDate,
+  ): void {
+    dateFrom = newDateFrom;
+    dateTo = newDateTo;
+  }
 
   useEffect(() => {
     if (isOffline) {
@@ -56,41 +63,57 @@ export default function ExpenseListPage() {
         dateTo: dateTo.toString(),
       };
       getUserTransactions(request).then((transactionData) => {
-        const newData = transactionData.transactions;
-        setData(newData);
-        filterByDate(newData);
+        setData(transactionData);
         setIsLoading(false);
       });
     }
   }, []);
 
-  useEffect(() => {
-    filterByDate(data);
-  }, [data, dateFrom, dateTo]);
-
-  function deleteItem(transaction: TransactionData) {
-    const now = new Date();
-    const check = new Date(transaction.date);
-
-    if (check.getMonth() == now.getMonth()) {
-      clearTransaction(transaction.id).then(() => {
-        deleteUserTransaction({ transactionId: transaction.id }).then(() =>
-          filterByDate(data),
-        );
+  function refreshData(): void {
+    if (isOffline) {
+      getAllTransactions().then((transactions) => {
+        setData(transactions);
       });
     } else {
-      deleteUserTransaction({ transactionId: transaction.id }).then(() =>
-        filterByDate(data),
-      );
+      const request: GetUserTransactionsRequestDTO = {
+        userId: userId!,
+        dateFrom: dateFrom.toString(),
+        dateTo: dateTo.toString(),
+      };
+      getUserTransactions(request).then((transactionData) => {
+        setData(transactionData);
+      });
     }
   }
 
+  function deleteItem(transaction: TransactionData) {
+    if (isOffline) {
+      clearTransaction(transaction.id).then(() => {
+        //TODO: save operation in new object (will be used in data sync process)
+        filterByDate(data);
+      });
+    } else {
+      deleteUserTransaction({ transactionId: transaction.id }).then(() => {
+        const request: GetUserTransactionsRequestDTO = {
+          userId: userId!,
+          dateFrom: dateFrom.toString(),
+          dateTo: dateTo.toString(),
+        };
+        getUserTransactions(request).then((transactionData) => {
+          refreshTransactions(transactionData).then(() => {});
+          setData(transactionData);
+        });
+      });
+    }
+  }
+
+  // only used in offline context
   function filterByDate(list: Array<TransactionData>): void {
     const data = list.filter((item: TransactionData) => {
       const date = parseDate(item.date);
       return date.compare(dateFrom) > 0 && date.compare(dateTo) <= 0;
     });
-    setFilteredData(data);
+    setData(data);
   }
 
   function saveTransaction(data: NewTransactionFormData) {
@@ -117,8 +140,8 @@ export default function ExpenseListPage() {
         initialFromDate={dateFrom}
         initialToDate={dateTo}
         onSearch={(range) => {
-          setDateFrom(range.fromDate);
-          setDateTo(range.toDate);
+          setDateRange(range.fromDate, range.toDate);
+          refreshData();
         }}
       />
 
@@ -145,7 +168,7 @@ export default function ExpenseListPage() {
 
       <div>
         <ul className="space-y-2">
-          {filteredData.map((item: any, i: any) => (
+          {data.map((item: any, i: any) => (
             <li
               key={i}
               className="flex justify-between items-center border px-4 py-2 rounded"
@@ -156,7 +179,7 @@ export default function ExpenseListPage() {
               />
             </li>
           ))}
-          {filteredData.length === 0 && (
+          {data.length === 0 && (
             <li className="text-gray-400">No entries for selected range</li>
           )}
         </ul>
