@@ -32,7 +32,7 @@ export default function RootLayout({
         <ToastProvider />
         <html lang="en">
           <Provider>
-            <body>{children}</body>
+            <body className="h-screen">{children}</body>
           </Provider>
         </html>
       </HeroUIProvider>

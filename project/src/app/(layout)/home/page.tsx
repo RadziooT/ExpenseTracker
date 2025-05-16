@@ -6,6 +6,7 @@ import { Pie } from "react-chartjs-2";
 import { Spinner } from "@heroui/react";
 import { getCachedChartData, getCachedUserData } from "@/services/initService";
 import { useUserContext } from "@/app/userContextProvider";
+import WelcomePage from "@/components/Welcome";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -70,12 +71,7 @@ export default function Home() {
       </div>
     );
 
-  if (isUserAuthenticated != "authenticated")
-    return (
-      <div className="min-h-screen flex items-center justify-center text-lg font-medium">
-        Log in to use app
-      </div>
-    );
+  if (isUserAuthenticated != "authenticated") return <WelcomePage />;
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center text-center px-4">

@@ -13,9 +13,12 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle,
   Spinner,
+  Tooltip,
+  Chip,
 } from "@heroui/react";
 import { useUserContext } from "@/app/userContextProvider";
 import Link from "next/link";
+import { WalletIcon } from "@heroicons/react/24/outline";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -35,7 +38,7 @@ export default function Header() {
           className="sm:hidden"
         />
         <NavbarBrand>
-          {/*TODO: logo*/}
+          <WalletIcon className="h-6 w-6 text-indigo-600" />
           <p className="font-bold text-inherit">Expense Tracker</p>
         </NavbarBrand>
       </NavbarContent>
@@ -47,19 +50,64 @@ export default function Header() {
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="/expenses">
+          <Link
+            href="/expenses"
+            className={
+              status !== "authenticated"
+                ? "text-gray-400 pointer-events-none cursor-not-allowed"
+                : ""
+            }
+            aria-disabled={status !== "authenticated"}
+          >
             Expenses
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="/statistics">
+          <Link
+            href="/statistics"
+            className={
+              status !== "authenticated"
+                ? "text-gray-400 pointer-events-none cursor-not-allowed"
+                : ""
+            }
+            aria-disabled={status !== "authenticated"}
+          >
             Statistics
           </Link>
         </NavbarItem>
-        <NavbarItem>{isOffline ? "offline" : "online"}</NavbarItem>
       </NavbarContent>
+
+      <NavbarContent className="hidden sm:flex" justify="center">
+        <NavbarItem>
+          {isOffline ? (
+            <Tooltip
+              content="You are viewing offline data. Reconnect to sync"
+              placement="bottom"
+            >
+              <Chip
+                className="capitalize"
+                color="default"
+                size="sm"
+                variant="flat"
+              >
+                offline
+              </Chip>
+            </Tooltip>
+          ) : (
+            <Chip
+              className="capitalize"
+              color="success"
+              size="sm"
+              variant="flat"
+            >
+              online
+            </Chip>
+          )}
+        </NavbarItem>
+      </NavbarContent>
+
       <NavbarContent justify="end">
-        {status == "loading" && (
+        {status === "loading" && (
           <Spinner
             classNames={{ label: "text-foreground mt-4" }}
             color="success"
@@ -67,7 +115,7 @@ export default function Header() {
           />
         )}
 
-        {status == "unauthenticated" && (
+        {status === "unauthenticated" && (
           <>
             <NavbarItem>
               <Button
@@ -92,7 +140,7 @@ export default function Header() {
           </>
         )}
 
-        {status == "authenticated" && (
+        {status === "authenticated" && (
           <NavbarItem className="hidden lg:flex">
             <Button
               color="primary"
@@ -106,6 +154,7 @@ export default function Header() {
           </NavbarItem>
         )}
       </NavbarContent>
+
       <NavbarMenu>
         <NavbarMenuItem>
           <Link color="foreground" href="/home">
@@ -113,12 +162,28 @@ export default function Header() {
           </Link>
         </NavbarMenuItem>
         <NavbarMenuItem>
-          <Link color="foreground" href="/expenses">
+          <Link
+            href="/expenses"
+            className={
+              status !== "authenticated"
+                ? "text-gray-400 pointer-events-none cursor-not-allowed"
+                : ""
+            }
+            aria-disabled={status !== "authenticated"}
+          >
             Expenses
           </Link>
         </NavbarMenuItem>
         <NavbarMenuItem>
-          <Link color="foreground" href="/statistics">
+          <Link
+            href="/statistics"
+            className={
+              status !== "authenticated"
+                ? "text-gray-400 pointer-events-none cursor-not-allowed"
+                : ""
+            }
+            aria-disabled={status !== "authenticated"}
+          >
             Statistics
           </Link>
         </NavbarMenuItem>
