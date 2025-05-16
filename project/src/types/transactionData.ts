@@ -1,4 +1,4 @@
-export default interface Transaction {
+export default interface TransactionData {
   id: string;
   isExpense: boolean;
   title: string;

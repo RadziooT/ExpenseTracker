@@ -1,33 +1,28 @@
-import { initUserData } from "@/actions/initUserData";
+import { initData } from "@/actions/initData";
 import { getUserData, saveUserData } from "@/services/frontendDb/userService";
 import { saveTransactions } from "@/services/frontendDb/transactionService";
 import {
-  clearChartData,
-  getAllChartData,
-  getChartData,
-  saveChartData,
-} from "@/services/frontendDb/chartService";
+  clearSummaryChartData,
+  getSummaryChartData,
+  saveSummaryChartData,
+} from "@/services/frontendDb/summaryChartService";
+import SummaryChart from "@/types/summaryChart";
 
 export const initAndCacheUserData = async (username: string) => {
-  const initData = await initUserData({ username });
-  await saveUserData(initData.userData);
-  await saveTransactions(initData.transactions);
-  await clearChartData();
+  const initDataResult = await initData({ username });
+  await saveUserData(initDataResult.userData);
+  await saveTransactions(initDataResult.transactions);
+  //Clear summary chart (cause: incremented id in db)
+  await clearSummaryChartData();
+  await saveSummaryChartData(initDataResult.summaryChart);
 
-  console.log("dwdawdwadw");
-  console.log(initData.chartEntries);
-
-  await saveChartData(initData.chartEntries);
-
-  return initData;
+  return initDataResult;
 };
 
 export const getCachedUserData = async () => {
   return getUserData();
 };
 
-export const getCachedChartData = async () => {
-  return getAllChartData();
+export const getCachedChartData = async (): Promise<SummaryChart> => {
+  return getSummaryChartData();
 };
-
-function prepareOfflineData() {}

@@ -3,10 +3,11 @@
 import { ArcElement, Chart, Legend, Tooltip } from "chart.js";
 import { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
-import { Spinner } from "@heroui/react";
 import { getCachedChartData, getCachedUserData } from "@/services/initService";
 import { useUserContext } from "@/app/userContextProvider";
 import WelcomePage from "@/components/Welcome";
+import Loading from "@/components/global/Loading";
+import SummaryChart from "@/types/summaryChart";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -15,22 +16,23 @@ export default function Home() {
   const [pieData, setPieData] = useState<any>(null);
   const [budgetDiff, setBudgetDiff] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { userId, isUserAuthenticated, setIsOffline, setIsUserAuthenticated } =
-    useUserContext();
+  const { userId, isUserAuthenticated } = useUserContext();
 
   let status = "";
   let color = "";
 
   useEffect(() => {
+    console.log("Use effect?");
+
     getCachedUserData().then((userData) => {
-      getCachedChartData().then((chartData) => {
+      getCachedChartData().then((chartData: SummaryChart) => {
         const pieChart = {
-          labels: chartData.map((entry: any) => entry.entry.label),
+          labels: chartData.labels,
           datasets: [
             {
-              label: "test",
-              data: chartData.map((entry: any) => entry.entry.amount),
-              backgroundColor: chartData.map((entry: any) => entry.entry.color),
+              label: "Current month expenses summary",
+              data: chartData.data,
+              backgroundColor: chartData.backgroundColor,
               borderWidth: 1,
             },
           ],
@@ -59,24 +61,14 @@ export default function Home() {
     });
   }, []);
 
-  if (isLoading)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-lg font-medium">
-        <Spinner
-          classNames={{ label: "text-foreground mt-4" }}
-          label="Loading your data..."
-          color="warning"
-          variant="wave"
-        />
-      </div>
-    );
+  if (isLoading) return <Loading loadingContent="Loading data..." />;
 
   if (isUserAuthenticated != "authenticated") return <WelcomePage />;
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center text-center px-4">
       <div className="mt-6">
-        <h1 className="text-2xl font-semibold">Welcome, {data.firstName}!</h1>
+        <h1 className="text-2xl font-semibold">Welcome, {data?.firstName}!</h1>
         <div className="flex-col items-center text-center px-4 border-solid rounded-xl outline-black">
           <p>Current budget</p>
           <p className={color}>{budgetDiff}</p>
@@ -93,10 +85,14 @@ export default function Home() {
       <div className="w-full mt-10 max-w-md">
         <div className="relative w-full" style={{ paddingBottom: "100%" }}>
           <div className="absolute inset-0">
-            <Pie
-              data={pieData}
-              options={{ responsive: true, maintainAspectRatio: false }}
-            />
+            {pieData ? (
+              <Pie
+                data={pieData}
+                options={{ responsive: true, maintainAspectRatio: false }}
+              />
+            ) : (
+              ""
+            )}
           </div>
         </div>
       </div>

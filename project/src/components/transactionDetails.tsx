@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Transaction from "@/types/transaction";
+import TransactionData from "@/types/transactionData";
 import {
   AdjustmentsHorizontalIcon,
   HeartIcon,
@@ -13,8 +13,8 @@ export default function TransactionDetails({
   transactionData,
   onDelete,
 }: {
-  transactionData: Transaction;
-  onDelete: (transaction: Transaction) => void;
+  transactionData: TransactionData;
+  onDelete: (transaction: TransactionData) => void;
 }) {
   const formattedAmount = `${transactionData.isExpense ? "-" : ""}${transactionData.amount} ${transactionData.currency}`;
   const amountStyle = transactionData.isExpense

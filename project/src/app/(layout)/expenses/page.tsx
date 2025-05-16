@@ -6,11 +6,10 @@ import DateRangePicker from "@/components/DateRangePicker";
 import {
   CalendarDate,
   getLocalTimeZone,
-  isToday,
   parseDate,
   today,
 } from "@internationalized/date";
-import Transaction from "@/types/transaction";
+import TransactionData from "@/types/transactionData";
 import NewTransactionFormModal, {
   NewTransactionFormData,
 } from "@/components/modals/NewTransactionForm";
@@ -31,8 +30,8 @@ import {
 import { deleteUserTransaction } from "@/actions/deleteUserTransaction";
 
 export default function ExpenseListPage() {
-  const [data, setData] = useState<Array<Transaction>>([]);
-  const [filteredData, setFilteredData] = useState<Array<Transaction>>([]);
+  const [data, setData] = useState<Array<TransactionData>>([]);
+  const [filteredData, setFilteredData] = useState<Array<TransactionData>>([]);
   const [dateFrom, setDateFrom] = useState<CalendarDate>(
     today(getLocalTimeZone()).subtract({ months: 1 }),
   );
@@ -65,7 +64,7 @@ export default function ExpenseListPage() {
     filterByDate(data);
   }, [data, dateFrom, dateTo]);
 
-  function deleteItem(transaction: Transaction) {
+  function deleteItem(transaction: TransactionData) {
     const now = new Date();
     const check = new Date(transaction.date);
 
@@ -82,8 +81,8 @@ export default function ExpenseListPage() {
     }
   }
 
-  function filterByDate(list: Array<Transaction>): void {
-    const data = list.filter((item: Transaction) => {
+  function filterByDate(list: Array<TransactionData>): void {
+    const data = list.filter((item: TransactionData) => {
       const date = parseDate(item.date);
       return date.compare(dateFrom) > 0 && date.compare(dateTo) <= 0;
     });
