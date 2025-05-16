@@ -28,6 +28,7 @@ import {
   AddUserTransactionsRequestDTO,
 } from "@/actions/addUserTransaction";
 import { deleteUserTransaction } from "@/actions/deleteUserTransaction";
+import Loading from "@/components/global/Loading";
 
 export default function ExpenseListPage() {
   const [data, setData] = useState<Array<TransactionData>>([]);
@@ -37,6 +38,7 @@ export default function ExpenseListPage() {
   );
   const [dateTo, setDateTo] = useState<CalendarDate>(today(getLocalTimeZone()));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { userId, isOffline } = useUserContext();
 
@@ -45,6 +47,7 @@ export default function ExpenseListPage() {
       getAllTransactions().then((transactions) => {
         setData(transactions);
         filterByDate(data);
+        setIsLoading(false);
       });
     } else {
       const request: GetUserTransactionsRequestDTO = {
@@ -56,6 +59,7 @@ export default function ExpenseListPage() {
         const newData = transactionData.transactions;
         setData(newData);
         filterByDate(newData);
+        setIsLoading(false);
       });
     }
   }, []);
@@ -101,6 +105,8 @@ export default function ExpenseListPage() {
     };
     addUserTransaction(transaction).then(() => {});
   }
+
+  if (isLoading) return <Loading loadingContent="Loading data..." />;
 
   return (
     <div className="max-w-3xl mx-auto p-6">
