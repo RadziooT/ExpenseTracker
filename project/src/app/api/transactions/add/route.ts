@@ -1,17 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import TransactionData from "@/models/TransactionData";
-import { AddUserTransactionsRequestDTO } from "@/app/(layout)/expenses/page";
+import { AddUserTransactionsRequestDTO } from "@/types/api/AddUserTransactionsRequestDTO";
 
 export async function POST(req: NextRequest) {
-  try {
-    const body: AddUserTransactionsRequestDTO = await req.json();
-    console.log(req);
-    console.log(body);
+  const { transaction } = (await req.json()) as {
+    transaction: AddUserTransactionsRequestDTO;
+  };
 
+  if (!transaction) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 },
+    );
+  }
+
+  try {
     await connectDB();
-    const createdData = await TransactionData.create(body);
-    console.log(createdData);
+    await TransactionData.create(transaction);
+
     return NextResponse.json("");
   } catch (e) {
     console.log(e);

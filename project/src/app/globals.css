@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @plugin './hero.ts';
 /*TODO: this can cause big css package sizes*/
-@source '../../node_modules/@heroui';
+@source '../../node_modules/@heroui/theme/dist';
 
 :root {
   --background: #ffffff;

@@ -1,10 +1,9 @@
 "use client";
 
-import type { MouseEventHandler } from "react";
 import { useEffect, useState } from "react";
 import { useUserContext } from "@/app/userContextProvider";
 import { Switch } from "@heroui/react";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 
 const base64ToUint8Array = (base64: string) => {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);

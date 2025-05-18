@@ -1,22 +1,35 @@
 "use client";
 
-import { ArcElement, Chart, Legend, Tooltip } from "chart.js";
+import { ArcElement, Chart, ChartData, Legend, Tooltip } from "chart.js";
 import { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { useUserContext } from "@/app/userContextProvider";
-import WelcomePage from "@/components/Welcome";
-import Loading from "@/components/global/Loading";
+import WelcomePage from "@/components/welcome";
+import Loading from "@/components/global/loading";
 import SummaryChart from "@/types/summaryChart";
 import { getCachedChartData, getCachedUserData } from "@/services/cacheService";
+import { UserData } from "@/types/userData";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
 export default function Home() {
-  const [data, setData] = useState<any>(null);
-  const [pieData, setPieData] = useState<any>(null);
+  const [data, setData] = useState<UserData>({
+    currentMonthExpensesCount: 0,
+    currentMonthIncomeCount: 0,
+    firstName: "",
+    spendingBudget: 0,
+    userId: "",
+    username: "",
+  });
+  const [pieData, setPieData] = useState<ChartData>({
+    datasets: [],
+    labels: [],
+    xLabels: [],
+    yLabels: [],
+  });
   const [budgetDiff, setBudgetDiff] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { userId, isUserAuthenticated } = useUserContext();
+  const { isUserAuthenticated } = useUserContext();
 
   let statusText = "";
   let color = "";
@@ -90,7 +103,7 @@ export default function Home() {
           <div className="absolute inset-0">
             {pieData ? (
               <Pie
-                data={pieData}
+                data={pieData as any}
                 options={{ responsive: true, maintainAspectRatio: false }}
               />
             ) : (

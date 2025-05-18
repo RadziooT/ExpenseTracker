@@ -4,27 +4,23 @@ import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
+  const { username, password } = (await req.json()) as {
+    username: string;
+    password: string;
+  };
+
+  if (!username || !password) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 },
+    );
+  }
+
   try {
-    const body = await req.json();
-    console.log(req);
-
-    console.log(body);
-
-    const { username, password } = body;
-
-    if (!username || !password) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
-    }
-
     await connectDB();
 
     const userFound = await User.findOne({ username });
     const hashedInputPassword = await bcrypt.hash(password, 10);
-
-    console.log(userFound);
 
     if (!userFound || hashedInputPassword == userFound.password) {
       return NextResponse.json(

@@ -15,7 +15,8 @@ import {
 import { useUserContext } from "@/app/userContextProvider";
 import Link from "next/link";
 import { WalletIcon } from "@heroicons/react/24/outline";
-import SendNotification from "@/components/SendNotification";
+import SendNotification from "@/components/sendNotification";
+import { clearCachedData } from "@/services/cacheService";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -94,8 +95,7 @@ export default function Header() {
               color="primary"
               variant="flat"
               onPress={() => {
-                console.log("implement sign out");
-                setIsUserAuthenticated(false);
+                clearCachedData().then(() => setIsUserAuthenticated(false));
               }}
             >
               Logout

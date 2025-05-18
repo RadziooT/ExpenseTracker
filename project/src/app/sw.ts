@@ -1,14 +1,10 @@
 import { defaultCache } from "@serwist/next/worker";
-import { NavigationRoute, PrecacheEntry, SerwistGlobalConfig } from "serwist";
-import { Serwist } from "serwist";
+import { PrecacheEntry, Serwist, SerwistGlobalConfig } from "serwist";
 import { getAllTransactions } from "@/services/frontendDb/transactionService";
-import { QueryData } from "@/actions/internal/ChartQuery";
+import TransactionData from "@/types/transactionData";
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
-    // Change this attribute's name to your `injectionPoint`.
-    // `injectionPoint` is an InjectManifest option.
-    // See https://serwist.pages.dev/docs/build/configuring
     __SW_MANIFEST: (PrecacheEntry | string)[] | undefined;
   }
 }
@@ -64,35 +60,34 @@ self.addEventListener("notificationclick", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  console.log(`Intercepted fetch request with url: ${event.request.url}`);
-});
-
-self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  console.log(`Intercepted fetch request with url: ${request.url}`);
-
   if (request.url.includes("/transactions/list")) {
-    console.log("here?");
-
     event.respondWith(
       (async () => {
+        const clonedRequest = event.request.clone();
         let response: Response;
         let data: any;
         try {
           response = await fetch(request);
           data = await response.json();
-          console.log(data);
         } catch (error) {
           if (
             error instanceof TypeError &&
             error.message === "Failed to fetch"
           ) {
             data = await getAllTransactions();
+            const dateRange = await clonedRequest.json();
+            const dateFrom = new Date(dateRange.dateFrom);
+            const dateTo = new Date(dateRange.dateTo);
+
             data = data.map((transaction: any) => transaction.entry);
+            data = data.filter((item: TransactionData) => {
+              const itemDate = new Date(item.date);
+              return itemDate >= dateFrom && itemDate <= dateTo;
+            });
           }
         }
-        console.log(data);
         return new Response(JSON.stringify(data), { status: 200 });
       })(),
     );

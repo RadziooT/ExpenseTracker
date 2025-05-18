@@ -3,12 +3,11 @@
 import { ReactNode, useEffect, useState } from "react";
 import { getCachedUserData } from "@/services/cacheService";
 import { useUserContext } from "@/app/userContextProvider";
-import { useRouter } from "next/navigation";
-import Loading from "@/components/global/Loading";
+import { redirect, useRouter } from "next/navigation";
+import Loading from "@/components/global/loading";
 
 export default function Guard({ children }: { children: ReactNode }) {
-  const { userId, setUserId, isUserAuthenticated, setIsUserAuthenticated } =
-    useUserContext();
+  const { userId, setUserId, setIsUserAuthenticated } = useUserContext();
   const [isReady, setIsReady] = useState(false);
 
   const router = useRouter();
@@ -28,7 +27,7 @@ export default function Guard({ children }: { children: ReactNode }) {
       } else {
         setIsUserAuthenticated(false);
         setIsReady(true);
-        router.push("/");
+        redirect("/home");
       }
     });
   }, []);

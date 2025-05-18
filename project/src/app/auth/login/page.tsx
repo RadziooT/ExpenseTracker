@@ -5,13 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUserContext } from "@/app/userContextProvider";
 import { Button, Input } from "@heroui/react";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 import { initAndCacheUserData } from "@/services/cacheService";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { userId, isUserAuthenticated, setIsUserAuthenticated, setUserId } =
-    useUserContext();
+  const { setIsUserAuthenticated, setUserId } = useUserContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -69,7 +68,7 @@ export default function LoginPage() {
         href="/auth/register"
         className="text-sm text-[#888] transition duration-150 ease hover:text-black"
       >
-        Don't have an account?
+        Don&apos;t have an account?
       </Link>
     </section>
   );

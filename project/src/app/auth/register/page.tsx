@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { addToast } from "@heroui/react";
 import Link from "next/link";
-import Loading from "@/components/global/Loading";
+import Loading from "@/components/global/loading";
 
 export interface RegisterUserRequestDTO {
   username: string;

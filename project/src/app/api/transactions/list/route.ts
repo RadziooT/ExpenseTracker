@@ -1,32 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import { TransactionsQuery } from "@/actions/internal/TransactionsQuery";
+import { TransactionsQuery } from "@/lib/internal/transactionsQuery";
 import TransactionData from "@/types/transactionData";
 
-interface GetUserTransactionsRequestDTO {
-  userId: string;
-  dateFrom: string;
-  dateTo: string;
-}
-
 export async function POST(req: NextRequest) {
+  const { userId, dateFrom, dateTo } = (await req.json()) as {
+    userId: string;
+    dateFrom: string;
+    dateTo: string;
+  };
+
+  if (!userId) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 },
+    );
+  }
+
   try {
-    const body = await req.json();
-    console.log(req);
-
-    console.log(body);
-
-    const { userId, dateFrom, dateTo } = body;
-
-    if (!userId || !dateFrom || !dateTo) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
-    }
-
     await connectDB();
-
     const transactions: Array<TransactionData> = await TransactionsQuery({
       userId,
       date: {

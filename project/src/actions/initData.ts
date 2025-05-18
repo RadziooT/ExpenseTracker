@@ -1,10 +1,11 @@
 "use server";
 
 import { connectDB } from "@/lib/mongodb";
-import User from "@/models/User";
-import { TransactionsQuery } from "@/actions/internal/TransactionsQuery";
+import User, { UserDocument } from "@/models/User";
+import { TransactionsQuery } from "@/lib/internal/transactionsQuery";
 import { InitData } from "@/types/initData";
-import { ChartQuery, QueryData } from "@/actions/internal/ChartQuery";
+import { ChartQuery, QueryData } from "@/lib/internal/chartQuery";
+import { InitUserDataRequestDTO } from "@/types/api/InitUserDataRequestDTO";
 
 function randomHexColorCode() {
   const n = (Math.random() * 0xfffff * 1000000).toString(16);
@@ -19,15 +20,18 @@ function generateBackgroundColors(count: number) {
   return result;
 }
 
-export interface InitUserDataRequestDTO {
-  userId: string;
-}
 export const initData = async (
   request: InitUserDataRequestDTO,
 ): Promise<InitData> => {
   try {
     await connectDB();
-    const userFound = await User.findOne({ _id: request.userId });
+    const userFound: UserDocument | null = await User.findOne({
+      _id: request.userId,
+    });
+
+    if (!userFound) {
+      return Promise.reject("User not found");
+    }
 
     const transactions = await TransactionsQuery({
       userId: userFound._id,
@@ -42,9 +46,10 @@ export const initData = async (
         userId: userFound._id.toString(),
         username: userFound.username,
         firstName: userFound.firstName,
-        spendingBudget: userFound.spendingBudget,
-        currentMonthIncomeCount: userFound.currentMonthIncomeCount,
-        currentMonthExpensesCount: userFound.currentMonthExpensesCount,
+        spendingBudget: userFound.monthlyBudget,
+        //TODO
+        currentMonthIncomeCount: 0,
+        currentMonthExpensesCount: 0,
       },
       transactions: transactions,
       summaryChart: {
@@ -55,7 +60,7 @@ export const initData = async (
       },
     };
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return Promise.reject(e);
   }
 };

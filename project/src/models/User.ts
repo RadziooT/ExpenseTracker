@@ -6,9 +6,7 @@ export interface UserDocument extends TimeData {
   username: string;
   password: string;
   firstName: string;
-  spendingBudget: number;
-  currentMonthIncomeCount: number;
-  currentMonthExpensesCount: number;
+  monthlyBudget: number;
 }
 
 const UserSchema = new Schema<UserDocument>(
@@ -26,15 +24,7 @@ const UserSchema = new Schema<UserDocument>(
       type: String,
       required: [true, "Name is required"],
     },
-    spendingBudget: {
-      type: Number,
-      default: 0,
-    },
-    currentMonthIncomeCount: {
-      type: Number,
-      default: 0,
-    },
-    currentMonthExpensesCount: {
+    monthlyBudget: {
       type: Number,
       default: 0,
     },

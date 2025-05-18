@@ -23,15 +23,13 @@ export async function POST(req: NextRequest) {
 
     const subs = await WebPushSubscription.find();
 
-    console.log(subs);
-
     await Promise.allSettled(
       subs.map((subscription) =>
         webPush.sendNotification(
           subscription.subscriptionData,
           JSON.stringify({
-            title: title ? title : "Hello Web Push",
-            message: content ? content : "Your web push notification is here!",
+            title: title ? title : "PWA Web Push",
+            message: content ? content : "Push content was not provided",
           }),
         ),
       ),

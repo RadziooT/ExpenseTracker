@@ -14,15 +14,8 @@ import {
 import React, { useState } from "react";
 import { I18nProvider } from "@react-aria/i18n";
 import { getLocalTimeZone, today } from "@internationalized/date";
-
-export interface NewTransactionFormData {
-  isExpense: boolean;
-  title: string;
-  amount: string;
-  currency: string;
-  date: string;
-  category: string;
-}
+import { NewTransactionFormData } from "@/types/api/NewTransactionFormData";
+import { CATEGORIES, CURRENCIES } from "@/types/constants/constants";
 
 type ModalFormProps = {
   isOpen: boolean;
@@ -44,9 +37,6 @@ export default function NewTransactionFormModal({
     category: "",
   });
 
-  const currencies = ["USD", "EUR", "GBP"];
-  const categories = ["Food", "Transport", "Shopping", "Health"];
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} backdrop="blur">
       <ModalContent>
@@ -56,7 +46,7 @@ export default function NewTransactionFormModal({
             <span className="font-medium text-sm">Is Expense?</span>
             <Switch
               checked={form.isExpense}
-              onChange={(checked) =>
+              onChange={() =>
                 setForm((prev) => ({
                   ...prev,
                   isExpense: !prev.isExpense,
@@ -101,7 +91,7 @@ export default function NewTransactionFormModal({
               }))
             }
           >
-            {currencies.map((currency) => (
+            {CURRENCIES.map((currency) => (
               <SelectItem key={currency}>{currency}</SelectItem>
             ))}
           </Select>
@@ -116,7 +106,7 @@ export default function NewTransactionFormModal({
               }))
             }
           >
-            {categories.map((category) => (
+            {CATEGORIES.map((category) => (
               <SelectItem key={category}>{category}</SelectItem>
             ))}
           </Select>

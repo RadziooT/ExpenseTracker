@@ -11,9 +11,6 @@ export async function POST(req: NextRequest) {
   };
   try {
     await connectDB();
-
-    console.log(subscription);
-
     const userFound = await User.findOne({ _id: userId });
 
     if (!userFound) {
@@ -49,8 +46,6 @@ export async function DELETE(req: NextRequest) {
   };
   try {
     await connectDB();
-
-    // maybe find specific subscription instead of deleting all
     await WebPushSubscription.deleteMany({ userId });
 
     return new NextResponse("");

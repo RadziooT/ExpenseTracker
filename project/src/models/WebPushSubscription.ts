@@ -3,7 +3,7 @@ import mongoose, { model, Schema } from "mongoose";
 export interface WebPushSubscription {
   _id: string;
   userId: string;
-  subscriptionData: { type: [Object]; default: [] };
+  subscription: { type: [Object]; default: [] };
 }
 
 const WebPushSubscriptionSchema = new Schema<WebPushSubscription>({
@@ -11,7 +11,7 @@ const WebPushSubscriptionSchema = new Schema<WebPushSubscription>({
     type: String,
     required: true,
   },
-  subscriptionData: {
+  subscription: {
     type: Object,
     default: [],
     required: true,

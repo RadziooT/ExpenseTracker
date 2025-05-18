@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import TransactionDetails from "@/components/transactionDetails";
-import DateRangePicker from "@/components/DateRangePicker";
+import DateRangePicker from "@/components/dateRangePicker";
 import {
   CalendarDate,
   getLocalTimeZone,
@@ -10,28 +10,13 @@ import {
   today,
 } from "@internationalized/date";
 import TransactionData from "@/types/transactionData";
-import NewTransactionFormModal, {
-  NewTransactionFormData,
-} from "@/components/modals/NewTransactionForm";
+import NewTransactionFormModal from "@/components/modals/newTransactionForm";
 import { addToast, Button } from "@heroui/react";
 import { useUserContext } from "@/app/userContextProvider";
-import Loading from "@/components/global/Loading";
-
-export interface AddUserTransactionsRequestDTO {
-  userId: string;
-  isExpense: boolean;
-  title: string;
-  amount: string;
-  currency: string;
-  date: string;
-  category: string;
-}
-
-export interface GetUserTransactionsRequestDTO {
-  userId: string;
-  dateFrom: string;
-  dateTo: string;
-}
+import Loading from "@/components/global/loading";
+import { AddUserTransactionsRequestDTO } from "@/types/api/AddUserTransactionsRequestDTO";
+import { GetUserTransactionsRequestDTO } from "@/types/api/GetUserTransactionsRequestDTO";
+import { NewTransactionFormData } from "@/types/api/NewTransactionFormData";
 
 export default function ExpenseListPage() {
   const [dateFrom, setDateFrom] = useState<CalendarDate>(
@@ -64,13 +49,12 @@ export default function ExpenseListPage() {
     });
   }, []);
 
-  function refreshData(): void {
+  function refreshData(dateFrom: CalendarDate, dateTo: CalendarDate): void {
     const request = {
       userId: userId!,
       dateFrom: dateFrom.toString(),
       dateTo: dateTo.toString(),
     };
-    console.log(request);
     fetchUserTransactions(request).then((transactionData) => {
       setData(transactionData);
     });
@@ -89,10 +73,7 @@ export default function ExpenseListPage() {
         body: JSON.stringify(request),
       });
 
-      const data: TransactionData[] = await res.json();
-      res.headers;
-      console.log(data);
-      return data;
+      return await res.json();
     } catch (err: any) {
       addToast({
         title: "Oops",
@@ -110,7 +91,7 @@ export default function ExpenseListPage() {
   async function deleteItem(transaction: TransactionData) {
     try {
       setIsLoading(true);
-      const res = await fetch("/api/transactions/delete", {
+      await fetch("/api/transactions/delete", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -118,7 +99,7 @@ export default function ExpenseListPage() {
         body: JSON.stringify({ transactionId: transaction.id }),
       });
 
-      refreshData();
+      refreshData(dateFrom, dateTo);
     } catch (err: any) {
       console.log(err);
       if (err.message == "Failed to fetch") {
@@ -154,12 +135,10 @@ export default function ExpenseListPage() {
       category: data.category,
     };
 
-    console.log(transaction);
-
     try {
       setIsLoading(true);
 
-      const res = await fetch("/api/transactions/add", {
+      await fetch("/api/transactions/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -167,7 +146,7 @@ export default function ExpenseListPage() {
         body: JSON.stringify(transaction),
       });
 
-      refreshData();
+      refreshData(dateFrom, dateTo);
     } catch (err: any) {
       console.log(err);
       if (err.message == "Failed to fetch") {
@@ -204,7 +183,7 @@ export default function ExpenseListPage() {
         initialToDate={dateTo}
         onSearch={(range) => {
           setDateRange(range.fromDate, range.toDate);
-          refreshData();
+          refreshData(range.fromDate, range.toDate);
         }}
       />
 
@@ -224,7 +203,7 @@ export default function ExpenseListPage() {
           }}
           onSave={(data: NewTransactionFormData) => {
             setIsModalOpen(false);
-            saveTransaction(data);
+            saveTransaction(data).then();
           }}
         ></NewTransactionFormModal>
       </div>

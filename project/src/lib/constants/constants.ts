@@ -1,0 +1,1 @@
+export const INITIAL_MONTHLY_BUDGET = 1000;

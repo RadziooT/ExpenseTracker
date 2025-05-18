@@ -2,22 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import { INITIAL_MONTHLY_BUDGET } from "@/lib/constants/constants";
 
 export async function POST(req: NextRequest) {
+  const { username, password, firstName } = (await req.json()) as {
+    username: string;
+    password: string;
+    firstName: string;
+  };
+
+  if (!username || !password || !firstName) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 },
+    );
+  }
+
   try {
-    const body = await req.json();
-    console.log(req);
-    console.log(body);
-
-    const { username, password, firstName } = body;
-
-    if (!username || !password || !firstName) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
-    }
-
     await connectDB();
     const userFound = await User.findOne({ username });
     if (userFound) {
@@ -32,10 +33,7 @@ export async function POST(req: NextRequest) {
       username: username,
       password: hashedPassword,
       firstName: firstName,
-      setSpendingBudget: 1000,
-      setOverallBudget: 1000,
-      thisMonthIncomeCount: 1000,
-      thisMonthExpensesCount: 1000,
+      monthlyBudget: INITIAL_MONTHLY_BUDGET,
     });
 
     await user.save();
