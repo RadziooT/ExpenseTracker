@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ReactNode } from "react";
-import { Provider } from "@/app/provider";
-import { HeroUIProvider, ToastProvider } from "@heroui/react";
+import React, { ReactNode } from "react";
 import { UserProvider } from "@/app/userContextProvider";
 
 const geistSans = Geist({
@@ -16,9 +14,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const APP_NAME = "PWA App";
+const APP_DEFAULT_TITLE = "My Awesome PWA App";
+const APP_TITLE_TEMPLATE = "%s - PWA App";
+const APP_DESCRIPTION = "Best PWA app in the world!";
+
 export const metadata: Metadata = {
-  title: "Expense Tracker",
-  description: "Expense Tracker App made for Mobile Systems Course",
+  applicationName: APP_NAME,
+  title: {
+    default: APP_NAME,
+    template: "%s - NJS App",
+  },
+  description: APP_DESCRIPTION,
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_NAME,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    shortcut: "/favicon.ico",
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({
@@ -28,14 +48,10 @@ export default function RootLayout({
 }>) {
   return (
     <UserProvider>
-      <HeroUIProvider>
-        <ToastProvider />
-        <html lang="en">
-          <Provider>
-            <body className="h-screen">{children}</body>
-          </Provider>
-        </html>
-      </HeroUIProvider>
+      <html lang="en">
+        <head />
+        <body className="h-screen">{children}</body>
+      </html>
     </UserProvider>
   );
 }

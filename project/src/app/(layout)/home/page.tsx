@@ -18,10 +18,15 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { userId, isUserAuthenticated } = useUserContext();
 
-  let status = "";
+  let statusText = "";
   let color = "";
 
   useEffect(() => {
+    if (isUserAuthenticated === "unauthenticated") {
+      setIsLoading(false);
+      return;
+    }
+
     getCachedUserData().then((userData) => {
       getCachedChartData().then((chartData: SummaryChart) => {
         const pieChart = {
@@ -41,13 +46,13 @@ export default function Home() {
         );
 
         if (budgetDiff > -200) {
-          status = "Over budget :(";
+          statusText = "Over budget :(";
           color = "text-red-600";
         } else if (budgetDiff < 200) {
-          status = "Spend carefully you're near your budget";
+          statusText = "Spend carefully you're near your budget";
           color = "text-yellow-600";
         } else {
-          status = "Well below budget keep going";
+          statusText = "Well below budget keep going";
           color = "text-green-600";
         }
 
@@ -57,7 +62,7 @@ export default function Home() {
         setIsLoading(false);
       });
     });
-  }, []);
+  }, [isUserAuthenticated]);
 
   if (isLoading) return <Loading loadingContent="Loading data..." />;
 
@@ -70,7 +75,7 @@ export default function Home() {
         <div className="flex-col items-center text-center px-4 border-solid rounded-xl outline-black">
           <p>Current budget</p>
           <p className={color}>{budgetDiff}</p>
-          <p className={`mt-1 font-medium ${color}`}>{status}</p>
+          <p className={`mt-1 font-medium ${color}`}>{statusText}</p>
         </div>
       </div>
 

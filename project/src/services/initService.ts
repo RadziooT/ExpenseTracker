@@ -1,6 +1,9 @@
 import { initData } from "@/actions/initData";
 import { getUserData, saveUserData } from "@/services/frontendDb/userService";
-import { saveTransactions } from "@/services/frontendDb/transactionService";
+import {
+  refreshTransactions,
+  saveTransactions,
+} from "@/services/frontendDb/transactionService";
 import {
   clearSummaryChartData,
   getSummaryChartData,
@@ -11,7 +14,7 @@ import SummaryChart from "@/types/summaryChart";
 export const initAndCacheUserData = async (username: string) => {
   const initDataResult = await initData({ username });
   await saveUserData(initDataResult.userData);
-  await saveTransactions(initDataResult.transactions);
+  await refreshTransactions(initDataResult.transactions);
   //Clear summary chart (cause: incremented id in db)
   await clearSummaryChartData();
   await saveSummaryChartData(initDataResult.summaryChart);

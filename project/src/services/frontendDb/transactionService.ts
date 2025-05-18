@@ -34,11 +34,16 @@ export const refreshTransactions = async (data: Array<TransactionData>) => {
   const db = await initDB();
   const dbTransaction = db.transaction(TRANSACTION_DATA_STORE, "readwrite");
   await dbTransaction.store.clear();
-  await Promise.all([
-    data.forEach((entry: any) => {
-      dbTransaction.store.put({ id: "current", entry });
-    }),
-    dbTransaction.done,
-  ]);
+  data.forEach((entry: any) => {
+    dbTransaction.store.put({ id: entry.id, entry });
+  });
+  dbTransaction.done;
+
+  // await Promise.all([
+  //   data.forEach((entry: any) => {
+  //     dbTransaction.store.put({ id: "current", entry });
+  //   }),
+  //   dbTransaction.done,
+  // ]);
   return;
 };

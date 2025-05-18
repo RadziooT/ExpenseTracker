@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import { CalendarDate } from "@internationalized/date";
 import { I18nProvider } from "@react-aria/i18n";

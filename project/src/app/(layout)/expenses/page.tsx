@@ -50,41 +50,49 @@ export default function ExpenseListPage() {
   }
 
   useEffect(() => {
-    if (isOffline) {
-      getAllTransactions().then((transactions) => {
-        setData(transactions);
-        filterByDate(data);
-        setIsLoading(false);
-      });
-    } else {
-      const request: GetUserTransactionsRequestDTO = {
-        userId: userId!,
-        dateFrom: dateFrom.toString(),
-        dateTo: dateTo.toString(),
-      };
-      getUserTransactions(request).then((transactionData) => {
-        setData(transactionData);
-        setIsLoading(false);
-      });
-    }
+    const request: GetUserTransactionsRequestDTO = {
+      userId: userId!,
+      dateFrom: dateFrom.toString(),
+      dateTo: dateTo.toString(),
+    };
+    fetchUserTransactions(request).then((transactionData) => {
+      setData(transactionData);
+      setIsLoading(false);
+    });
   }, []);
 
   function refreshData(): void {
-    if (isOffline) {
-      getAllTransactions().then((transactions) => {
-        setData(transactions);
-      });
-    } else {
-      const request: GetUserTransactionsRequestDTO = {
-        userId: userId!,
-        dateFrom: dateFrom.toString(),
-        dateTo: dateTo.toString(),
-      };
-      getUserTransactions(request).then((transactionData) => {
-        setData(transactionData);
-      });
-    }
+    const request: GetUserTransactionsRequestDTO = {
+      userId: userId!,
+      dateFrom: dateFrom.toString(),
+      dateTo: dateTo.toString(),
+    };
+    fetchUserTransactions(request).then((transactionData) => {
+      setData(transactionData);
+    });
   }
+
+  const fetchUserTransactions = async (
+    request: GetUserTransactionsRequestDTO,
+  ): Promise<Array<TransactionData>> => {
+    try {
+      const res = await fetch("/api/transactions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
+      });
+
+      const data: TransactionData[] = await res.json();
+      console.log(data);
+      return data;
+    } catch (err: any) {
+      throw new Error(err.error || "Failed to fetch transactions");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   function deleteItem(transaction: TransactionData) {
     if (isOffline) {
@@ -136,7 +144,7 @@ export default function ExpenseListPage() {
       <h1 className="text-2xl font-bold mb-4">My Income & Expenses</h1>
 
       <DateRangePicker
-        disabled={isOffline}
+        disabled={false}
         initialFromDate={dateFrom}
         initialToDate={dateTo}
         onSearch={(range) => {
@@ -168,7 +176,7 @@ export default function ExpenseListPage() {
 
       <div>
         <ul className="space-y-2">
-          {data.map((item: any, i: any) => (
+          {data.map((item: TransactionData, i: number) => (
             <li
               key={i}
               className="flex justify-between items-center border px-4 py-2 rounded"
