@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { signOut, useSession } from "next-auth/react";
 
 import {
   Button,
@@ -12,9 +11,6 @@ import {
   NavbarMenu,
   NavbarMenuItem,
   NavbarMenuToggle,
-  Spinner,
-  Tooltip,
-  Chip,
 } from "@heroui/react";
 import { useUserContext } from "@/app/userContextProvider";
 import Link from "next/link";
@@ -22,13 +18,11 @@ import { WalletIcon } from "@heroicons/react/24/outline";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
-  const { isOffline, setIsOffline, setIsUserAuthenticated } = useUserContext();
-
-  const { status } = useSession();
+  const { isUserAuthenticated, setIsUserAuthenticated } = useUserContext();
 
   useEffect(() => {
-    setIsUserAuthenticated(status);
-  }, [status]);
+    setIsUserAuthenticated(isUserAuthenticated);
+  }, [isUserAuthenticated]);
 
   return (
     <Navbar onMenuOpenChange={setIsMenuOpen}>
@@ -53,69 +47,19 @@ export default function Header() {
           <Link
             href="/expenses"
             className={
-              status !== "authenticated"
+              !isUserAuthenticated
                 ? "text-gray-400 pointer-events-none cursor-not-allowed"
                 : ""
             }
-            aria-disabled={status !== "authenticated"}
+            aria-disabled={!isUserAuthenticated}
           >
             Expenses
           </Link>
         </NavbarItem>
-        <NavbarItem>
-          <Link
-            href="/statistics"
-            className={
-              status !== "authenticated"
-                ? "text-gray-400 pointer-events-none cursor-not-allowed"
-                : ""
-            }
-            aria-disabled={status !== "authenticated"}
-          >
-            Statistics
-          </Link>
-        </NavbarItem>
-      </NavbarContent>
-
-      <NavbarContent className="hidden sm:flex" justify="center">
-        <NavbarItem>
-          {isOffline ? (
-            <Tooltip
-              content="You are viewing offline data. Reconnect to sync"
-              placement="bottom"
-            >
-              <Chip
-                className="capitalize"
-                color="default"
-                size="sm"
-                variant="flat"
-              >
-                offline
-              </Chip>
-            </Tooltip>
-          ) : (
-            <Chip
-              className="capitalize"
-              color="success"
-              size="sm"
-              variant="flat"
-            >
-              online
-            </Chip>
-          )}
-        </NavbarItem>
       </NavbarContent>
 
       <NavbarContent justify="end">
-        {status === "loading" && (
-          <Spinner
-            classNames={{ label: "text-foreground mt-4" }}
-            color="success"
-            variant="dots"
-          />
-        )}
-
-        {status === "unauthenticated" && (
+        {!isUserAuthenticated && (
           <>
             <NavbarItem>
               <Button
@@ -140,13 +84,14 @@ export default function Header() {
           </>
         )}
 
-        {status === "authenticated" && (
+        {isUserAuthenticated && (
           <NavbarItem className="hidden lg:flex">
             <Button
               color="primary"
               variant="flat"
               onPress={() => {
-                signOut({ callbackUrl: "/home" }).then(() => {});
+                console.log("implement sign out");
+                setIsUserAuthenticated(false);
               }}
             >
               Logout
@@ -165,26 +110,13 @@ export default function Header() {
           <Link
             href="/expenses"
             className={
-              status !== "authenticated"
+              !isUserAuthenticated
                 ? "text-gray-400 pointer-events-none cursor-not-allowed"
                 : ""
             }
-            aria-disabled={status !== "authenticated"}
+            aria-disabled={!isUserAuthenticated}
           >
             Expenses
-          </Link>
-        </NavbarMenuItem>
-        <NavbarMenuItem>
-          <Link
-            href="/statistics"
-            className={
-              status !== "authenticated"
-                ? "text-gray-400 pointer-events-none cursor-not-allowed"
-                : ""
-            }
-            aria-disabled={status !== "authenticated"}
-          >
-            Statistics
           </Link>
         </NavbarMenuItem>
       </NavbarMenu>

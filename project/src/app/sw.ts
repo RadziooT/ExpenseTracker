@@ -72,7 +72,7 @@ self.addEventListener("fetch", (event) => {
 
   console.log(`Intercepted fetch request with url: ${request.url}`);
 
-  if (request.url.includes("/transactions")) {
+  if (request.url.includes("/transactions/list")) {
     console.log("here?");
 
     event.respondWith(
@@ -96,7 +96,7 @@ self.addEventListener("fetch", (event) => {
         return new Response(JSON.stringify(data), { status: 200 });
       })(),
     );
-    return; // prevent falling through
+    return;
   }
 });
 

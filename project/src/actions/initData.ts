@@ -7,7 +7,7 @@ import { InitData } from "@/types/initData";
 import { ChartQuery, QueryData } from "@/actions/internal/ChartQuery";
 
 function randomHexColorCode() {
-  let n = (Math.random() * 0xfffff * 1000000).toString(16);
+  const n = (Math.random() * 0xfffff * 1000000).toString(16);
   return "#" + n.slice(0, 6);
 }
 
@@ -20,14 +20,14 @@ function generateBackgroundColors(count: number) {
 }
 
 export interface InitUserDataRequestDTO {
-  username: string;
+  userId: string;
 }
 export const initData = async (
   request: InitUserDataRequestDTO,
 ): Promise<InitData> => {
   try {
     await connectDB();
-    const userFound = await User.findOne({ username: request.username });
+    const userFound = await User.findOne({ _id: request.userId });
 
     const transactions = await TransactionsQuery({
       userId: userFound._id,

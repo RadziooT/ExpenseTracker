@@ -1,23 +1,18 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { useSession } from "next-auth/react";
+import React, { createContext, ReactNode, useContext, useState } from "react";
 
 interface UserContextType {
   userId: string | null;
-  isOffline: boolean;
-  isUserAuthenticated: string;
+  isUserAuthenticated: boolean;
   setUserId: (id: string) => void;
-  setIsOffline: (status: boolean) => void;
-  setIsUserAuthenticated: (status: string) => void;
+  setIsUserAuthenticated: (status: boolean) => void;
 }
 
 const UserContext = createContext<UserContextType>({
   userId: null,
-  isOffline: false,
-  isUserAuthenticated: "unauthenticated",
-  setIsOffline(status: boolean): void {},
-  setIsUserAuthenticated(status: string): void {},
+  isUserAuthenticated: false,
+  setIsUserAuthenticated(status: boolean): void {},
   setUserId(id: string): void {},
 });
 
@@ -27,26 +22,19 @@ interface UserProviderProps {
 
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [userId, setUserIdState] = useState<string | null>(null);
-  const [isOffline, setIsOfflineState] = useState<boolean>(false);
   const [isUserAuthenticated, setIsUserAuthenticated] =
-    useState<string>("unauthenticated");
+    useState<boolean>(false);
 
   const setUserId = (id: string) => {
     setUserIdState(id);
-  };
-
-  const setIsOffline = (status: boolean) => {
-    setIsOfflineState(status);
   };
 
   return (
     <UserContext.Provider
       value={{
         userId,
-        isOffline,
         isUserAuthenticated,
         setUserId,
-        setIsOffline,
         setIsUserAuthenticated,
       }}
     >

@@ -1,37 +1,39 @@
 "use client";
 
-import React, { FormEvent, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useUserContext } from "@/app/userContextProvider";
-import { initAndCacheUserData } from "@/services/initService";
 import { Button, Input } from "@heroui/react";
-import { saveUserData } from "@/services/frontendDb/userService";
+import Loading from "@/components/global/Loading";
+import { initAndCacheUserData } from "@/services/cacheService";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { userId, isOffline, setUserId, setIsOffline } = useUserContext();
-
+  const { userId, isUserAuthenticated, setIsUserAuthenticated, setUserId } =
+    useUserContext();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const login = async () => {
-    const res = await signIn("credentials", {
-      username,
-      password,
-      redirect: false,
+    setIsLoading(true);
+
+    const loginState = await fetch("/api/auth/loginUser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
     });
-    if (res?.error) {
-      // setError(res.error as string);
-    }
-    if (res?.ok) {
-      const data = await initAndCacheUserData(username);
-      setUserId(data.userData.userId);
-      setIsOffline(false);
-      return router.push("/home");
-    }
+    const userId = await loginState.json();
+    const data = await initAndCacheUserData(userId);
+    setUserId(data.userData.userId);
+    setIsUserAuthenticated(true);
+    return router.push("/home");
   };
+
+  if (isLoading) return <Loading loadingContent="Setting up your data..." />;
 
   return (
     <section>

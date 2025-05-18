@@ -3,11 +3,11 @@
 import { ArcElement, Chart, Legend, Tooltip } from "chart.js";
 import { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
-import { getCachedChartData, getCachedUserData } from "@/services/initService";
 import { useUserContext } from "@/app/userContextProvider";
 import WelcomePage from "@/components/Welcome";
 import Loading from "@/components/global/Loading";
 import SummaryChart from "@/types/summaryChart";
+import { getCachedChartData, getCachedUserData } from "@/services/cacheService";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -22,7 +22,7 @@ export default function Home() {
   let color = "";
 
   useEffect(() => {
-    if (isUserAuthenticated === "unauthenticated") {
+    if (!isUserAuthenticated) {
       setIsLoading(false);
       return;
     }
@@ -66,7 +66,7 @@ export default function Home() {
 
   if (isLoading) return <Loading loadingContent="Loading data..." />;
 
-  if (isUserAuthenticated != "authenticated") return <WelcomePage />;
+  if (!isUserAuthenticated) return <WelcomePage />;
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center text-center px-4">

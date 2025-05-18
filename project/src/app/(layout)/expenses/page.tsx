@@ -6,7 +6,6 @@ import DateRangePicker from "@/components/DateRangePicker";
 import {
   CalendarDate,
   getLocalTimeZone,
-  parseDate,
   startOfMonth,
   today,
 } from "@internationalized/date";
@@ -14,43 +13,47 @@ import TransactionData from "@/types/transactionData";
 import NewTransactionFormModal, {
   NewTransactionFormData,
 } from "@/components/modals/NewTransactionForm";
-import { Button } from "@heroui/react";
+import { addToast, Button } from "@heroui/react";
 import { useUserContext } from "@/app/userContextProvider";
-import {
-  getUserTransactions,
-  GetUserTransactionsRequestDTO,
-} from "@/actions/getUserTransactions";
-import {
-  clearTransaction,
-  getAllTransactions,
-  refreshTransactions,
-} from "@/services/frontendDb/transactionService";
-import {
-  addUserTransaction,
-  AddUserTransactionsRequestDTO,
-} from "@/actions/addUserTransaction";
-import { deleteUserTransaction } from "@/actions/deleteUserTransaction";
 import Loading from "@/components/global/Loading";
 
+export interface AddUserTransactionsRequestDTO {
+  userId: string;
+  isExpense: boolean;
+  title: string;
+  amount: string;
+  currency: string;
+  date: string;
+  category: string;
+}
+
+export interface GetUserTransactionsRequestDTO {
+  userId: string;
+  dateFrom: string;
+  dateTo: string;
+}
+
 export default function ExpenseListPage() {
-  let dateFrom: CalendarDate = startOfMonth(today(getLocalTimeZone()));
-  let dateTo: CalendarDate = today(getLocalTimeZone());
+  const [dateFrom, setDateFrom] = useState<CalendarDate>(
+    startOfMonth(today(getLocalTimeZone())),
+  );
+  const [dateTo, setDateTo] = useState<CalendarDate>(today(getLocalTimeZone()));
   const [data, setData] = useState<Array<TransactionData>>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const { userId, isOffline } = useUserContext();
+  const { userId } = useUserContext();
 
   function setDateRange(
     newDateFrom: CalendarDate,
     newDateTo: CalendarDate,
   ): void {
-    dateFrom = newDateFrom;
-    dateTo = newDateTo;
+    setDateFrom(newDateFrom);
+    setDateTo(newDateTo);
   }
 
   useEffect(() => {
-    const request: GetUserTransactionsRequestDTO = {
+    const request = {
       userId: userId!,
       dateFrom: dateFrom.toString(),
       dateTo: dateTo.toString(),
@@ -62,11 +65,12 @@ export default function ExpenseListPage() {
   }, []);
 
   function refreshData(): void {
-    const request: GetUserTransactionsRequestDTO = {
+    const request = {
       userId: userId!,
       dateFrom: dateFrom.toString(),
       dateTo: dateTo.toString(),
     };
+    console.log(request);
     fetchUserTransactions(request).then((transactionData) => {
       setData(transactionData);
     });
@@ -76,7 +80,8 @@ export default function ExpenseListPage() {
     request: GetUserTransactionsRequestDTO,
   ): Promise<Array<TransactionData>> => {
     try {
-      const res = await fetch("/api/transactions", {
+      setIsLoading(true);
+      const res = await fetch("/api/transactions/list", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -85,46 +90,60 @@ export default function ExpenseListPage() {
       });
 
       const data: TransactionData[] = await res.json();
+      res.headers;
       console.log(data);
       return data;
     } catch (err: any) {
+      addToast({
+        title: "Oops",
+        description: "Failed to fetch transactions",
+        color: "danger",
+        timeout: 2000,
+        shouldShowTimeoutProgress: true,
+      });
       throw new Error(err.error || "Failed to fetch transactions");
     } finally {
       setIsLoading(false);
     }
   };
 
-  function deleteItem(transaction: TransactionData) {
-    if (isOffline) {
-      clearTransaction(transaction.id).then(() => {
-        //TODO: save operation in new object (will be used in data sync process)
-        filterByDate(data);
+  async function deleteItem(transaction: TransactionData) {
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/transactions/delete", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ transactionId: transaction.id }),
       });
-    } else {
-      deleteUserTransaction({ transactionId: transaction.id }).then(() => {
-        const request: GetUserTransactionsRequestDTO = {
-          userId: userId!,
-          dateFrom: dateFrom.toString(),
-          dateTo: dateTo.toString(),
-        };
-        getUserTransactions(request).then((transactionData) => {
-          refreshTransactions(transactionData).then(() => {});
-          setData(transactionData);
+
+      refreshData();
+    } catch (err: any) {
+      console.log(err);
+      if (err.message == "Failed to fetch") {
+        addToast({
+          title: "Offline mode",
+          description: "Data modification is available only in online mode",
+          color: "warning",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
         });
-      });
+      } else {
+        addToast({
+          title: "Oops!",
+          description: "Couldn't delete transaction. Try again later",
+          color: "warning",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
+        });
+      }
+    } finally {
+      setIsLoading(false);
     }
   }
 
-  // only used in offline context
-  function filterByDate(list: Array<TransactionData>): void {
-    const data = list.filter((item: TransactionData) => {
-      const date = parseDate(item.date);
-      return date.compare(dateFrom) > 0 && date.compare(dateTo) <= 0;
-    });
-    setData(data);
-  }
-
-  function saveTransaction(data: NewTransactionFormData) {
+  async function saveTransaction(data: NewTransactionFormData) {
     const transaction: AddUserTransactionsRequestDTO = {
       userId: userId!,
       isExpense: data.isExpense,
@@ -134,7 +153,43 @@ export default function ExpenseListPage() {
       date: data.date,
       category: data.category,
     };
-    addUserTransaction(transaction).then(() => {});
+
+    console.log(transaction);
+
+    try {
+      setIsLoading(true);
+
+      const res = await fetch("/api/transactions/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(transaction),
+      });
+
+      refreshData();
+    } catch (err: any) {
+      console.log(err);
+      if (err.message == "Failed to fetch") {
+        addToast({
+          title: "Offline mode",
+          description: "Data modification is available only in online mode",
+          color: "warning",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
+        });
+      } else {
+        addToast({
+          title: "Oops!",
+          description: "Couldn't add transaction. Try again later",
+          color: "warning",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   if (isLoading) return <Loading loadingContent="Loading data..." />;
@@ -168,8 +223,8 @@ export default function ExpenseListPage() {
             setIsModalOpen(false);
           }}
           onSave={(data: NewTransactionFormData) => {
-            saveTransaction(data);
             setIsModalOpen(false);
+            saveTransaction(data);
           }}
         ></NewTransactionFormModal>
       </div>

@@ -1,7 +1,11 @@
 import { initData } from "@/actions/initData";
-import { getUserData, saveUserData } from "@/services/frontendDb/userService";
 import {
-  refreshTransactions,
+  clearUserData,
+  getUserData,
+  saveUserData,
+} from "@/services/frontendDb/userService";
+import {
+  clearAllTransactionData,
   saveTransactions,
 } from "@/services/frontendDb/transactionService";
 import {
@@ -11,12 +15,11 @@ import {
 } from "@/services/frontendDb/summaryChartService";
 import SummaryChart from "@/types/summaryChart";
 
-export const initAndCacheUserData = async (username: string) => {
-  const initDataResult = await initData({ username });
+export const initAndCacheUserData = async (userId: string) => {
+  const initDataResult = await initData({ userId });
+  await clearCachedData();
   await saveUserData(initDataResult.userData);
-  await refreshTransactions(initDataResult.transactions);
-  //Clear summary chart (cause: incremented id in db)
-  await clearSummaryChartData();
+  await saveTransactions(initDataResult.transactions);
   await saveSummaryChartData(initDataResult.summaryChart);
 
   return initDataResult;
@@ -28,4 +31,10 @@ export const getCachedUserData = async () => {
 
 export const getCachedChartData = async (): Promise<SummaryChart> => {
   return getSummaryChartData();
+};
+
+export const clearCachedData = async (): Promise<void> => {
+  await clearUserData();
+  await clearAllTransactionData();
+  await clearSummaryChartData();
 };
