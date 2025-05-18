@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import React, { ReactNode } from "react";
 import { UserProvider } from "@/app/userContextProvider";
+import Guard from "@/components/Guard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,7 +51,9 @@ export default function RootLayout({
     <UserProvider>
       <html lang="en">
         <head />
-        <body className="h-screen">{children}</body>
+        <body className="h-screen">
+          <Guard>{children}</Guard>
+        </body>
       </html>
     </UserProvider>
   );
