@@ -1,45 +1,74 @@
 "use client";
 
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { register, RegisterUserRequestDTO } from "@/actions/register";
 import { addToast } from "@heroui/react";
 import Link from "next/link";
+import Loading from "@/components/global/Loading";
+
+export interface RegisterUserRequestDTO {
+  username: string;
+  password: string;
+  firstName: string;
+}
 
 export default function RegisterPage() {
-  const [error, setError] = useState<string>();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleSubmit = async (formData: FormData) => {
+  const register = async (formData: FormData) => {
+    setIsLoading(true);
+
     const requestData: RegisterUserRequestDTO = {
       username: formData.get("username") as string,
       password: formData.get("password") as string,
       firstName: formData.get("firstName") as string,
     };
-    await register(requestData)
-      .then(() => {
-        formRef.current?.reset();
-        return router.push("/auth/login");
-      })
-      .catch((error) => {
-        setError(error);
+
+    try {
+      await fetch("/api/auth/registerUser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      formRef.current?.reset();
+      return router.push("/auth/login");
+    } catch (err: any) {
+      console.log(err);
+      if (err.message == "Failed to fetch") {
         addToast({
-          title: "Oops!",
-          description: "Something went wrong when registering user",
-          color: "danger",
+          title: "Offline mode",
+          description: "Registering is available only in online mode",
+          color: "warning",
           timeout: 2000,
           shouldShowTimeoutProgress: true,
         });
-      });
+      } else {
+        addToast({
+          title: "Oops!",
+          description: "Couldn't create user. Try again later",
+          color: "warning",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (isLoading) return <Loading loadingContent="Registering user..." />;
 
   return (
     <section>
       <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
       <form
         ref={formRef}
-        action={handleSubmit}
+        action={register}
         className="space-y-4 items-center flex flex-col"
       >
         <input

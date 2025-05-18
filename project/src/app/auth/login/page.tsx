@@ -19,14 +19,14 @@ export default function LoginPage() {
   const login = async () => {
     setIsLoading(true);
 
-    const loginState = await fetch("/api/auth/loginUser", {
+    const loginResult = await fetch("/api/auth/loginUser", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ username, password }),
     });
-    const userId = await loginState.json();
+    const userId = await loginResult.json();
     const data = await initAndCacheUserData(userId);
     setUserId(data.userData.userId);
     setIsUserAuthenticated(true);
