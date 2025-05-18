@@ -15,6 +15,7 @@ import {
 import { useUserContext } from "@/app/userContextProvider";
 import Link from "next/link";
 import { WalletIcon } from "@heroicons/react/24/outline";
+import SendNotification from "@/components/SendNotification";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -55,6 +56,9 @@ export default function Header() {
           >
             Expenses
           </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <SendNotification></SendNotification>
         </NavbarItem>
       </NavbarContent>
 
