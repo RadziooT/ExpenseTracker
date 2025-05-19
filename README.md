@@ -12,7 +12,7 @@
 
 **Expense Tracker** is a **Progressive Web App** built with **Next.js 15** as the final project for a **Mobile Systems** course. The project focuses on key concepts in developing mobile-friendly and offline-capable applications. As a personal challenge, the author also explored the **Next.js App** with **App Router** and related modern web tools.
 
-> [Live App (Hosted on Vercel)](https://vercel.com/)  
+> [Live App (Hosted on Vercel)](https://expense-tracker-ashen-theta.vercel.app/)  
 > *Push notifications are protected—contact the author to test this feature.*
 
 ---
@@ -53,7 +53,7 @@ Push subscription endpoints are manually secured via a secret stored in `.env`.
 
 ---
 
-## 📚 What I Learned
+## What I Learned
 
 Throughout this project, I gained valuable experience in:
 
@@ -62,6 +62,16 @@ Throughout this project, I gained valuable experience in:
 - Push notifications implementation
 - Building with the **Next.js App Router**
 - Modern state management and client-server interactions
+
+---
+
+## What could be done
+
+Duo to project due date some functionalities could be improved:
+
+- Frontend form validation
+- Better data aggregation
+- Improved error handling
 
 ---
 
@@ -78,7 +88,6 @@ Uncomment and fill in the required values in `.env` based on `.env.sample`:
 
 ```env
 MONGODB_URI=your_mongodb_connection_string
-AUTH_SECRET=your_auth_secret
 WEB_PUSH_EMAIL=your_email@example.com
 NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY=your_vapid_public_key
 WEB_PUSH_PRIVATE_KEY=your_vapid_private_key
