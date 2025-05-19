@@ -15,7 +15,7 @@ import React, { useState } from "react";
 import { I18nProvider } from "@react-aria/i18n";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { NewTransactionFormData } from "@/types/api/NewTransactionFormData";
-import { CATEGORIES, CURRENCIES } from "@/types/constants/constants";
+import { CATEGORIES, DEFAULT_CURRENCY } from "@/types/constants/constants";
 
 type ModalFormProps = {
   isOpen: boolean;
@@ -32,7 +32,6 @@ export default function NewTransactionFormModal({
     isExpense: true,
     title: "",
     amount: "",
-    currency: "",
     date: today(getLocalTimeZone()),
     category: "",
   });
@@ -82,21 +81,6 @@ export default function NewTransactionFormModal({
           />
 
           <Select
-            label="Currency"
-            selectedKeys={[form.currency]}
-            onSelectionChange={(keys) =>
-              setForm((prev) => ({
-                ...prev,
-                currency: Array.from(keys)[0].toString(),
-              }))
-            }
-          >
-            {CURRENCIES.map((currency) => (
-              <SelectItem key={currency}>{currency}</SelectItem>
-            ))}
-          </Select>
-
-          <Select
             label="Category"
             selectedKeys={[form.category]}
             onSelectionChange={(keys) =>
@@ -139,7 +123,7 @@ export default function NewTransactionFormModal({
                 isExpense: form.isExpense,
                 title: form.title,
                 amount: form.amount,
-                currency: form.currency,
+                currency: DEFAULT_CURRENCY,
                 date: form.date.toString(),
                 category: form.category,
               })

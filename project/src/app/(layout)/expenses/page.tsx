@@ -17,6 +17,7 @@ import Loading from "@/components/global/loading";
 import { AddUserTransactionsRequestDTO } from "@/types/api/AddUserTransactionsRequestDTO";
 import { GetUserTransactionsRequestDTO } from "@/types/api/GetUserTransactionsRequestDTO";
 import { NewTransactionFormData } from "@/types/api/NewTransactionFormData";
+import { redirect } from "next/navigation";
 
 export default function ExpenseListPage() {
   const [dateFrom, setDateFrom] = useState<CalendarDate>(
@@ -27,7 +28,8 @@ export default function ExpenseListPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const { userId } = useUserContext();
+  const { userId, isUserAuthenticated, setDataRefreshRequired } =
+    useUserContext();
 
   function setDateRange(
     newDateFrom: CalendarDate,
@@ -38,6 +40,9 @@ export default function ExpenseListPage() {
   }
 
   useEffect(() => {
+    if (!isUserAuthenticated) {
+      redirect("/");
+    }
     const request = {
       userId: userId!,
       dateFrom: dateFrom.toString(),
@@ -99,6 +104,7 @@ export default function ExpenseListPage() {
         body: JSON.stringify({ transactionId: transaction.id }),
       });
 
+      setDataRefreshRequired(true);
       refreshData(dateFrom, dateTo);
     } catch (err: any) {
       console.log(err);
@@ -145,7 +151,7 @@ export default function ExpenseListPage() {
         },
         body: JSON.stringify(transaction),
       });
-
+      setDataRefreshRequired(true);
       refreshData(dateFrom, dateTo);
     } catch (err: any) {
       console.log(err);
@@ -174,7 +180,7 @@ export default function ExpenseListPage() {
   if (isLoading) return <Loading loadingContent="Loading data..." />;
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto px-6 pb-4">
       <h1 className="text-2xl font-bold mb-4">My Income & Expenses</h1>
 
       <DateRangePicker
@@ -187,11 +193,11 @@ export default function ExpenseListPage() {
         }}
       />
 
-      <div className="flex flex-wrap gap-4 mb-4">
-        <h2 className="text-lg font-semibold mt-4 mb-2">Transactions</h2>
+      <div className="flex flex-wrap gap-4 pt-4 pb-4 items-center justify-between">
+        <h2 className="text-lg font-semibold">Transactions</h2>
 
         <Button
-          className="ml-auto bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
+          className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
           onPress={() => setIsModalOpen(true)}
         >
           New Expense/Income

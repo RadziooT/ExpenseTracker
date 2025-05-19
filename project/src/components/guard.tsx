@@ -27,7 +27,7 @@ export default function Guard({ children }: { children: ReactNode }) {
       } else {
         setIsUserAuthenticated(false);
         setIsReady(true);
-        redirect("/home");
+        redirect("/");
       }
     });
   }, []);

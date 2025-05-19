@@ -9,7 +9,9 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       <ToastProvider />
       <div className="h-full">
         <Header />
-        {children}
+        <div className="overflow-y-auto h-[calc(100vh-116px)] p-4 max-w-6xl mx-auto">
+          {children}
+        </div>
         <Footer />
       </div>
     </HeroUIProvider>

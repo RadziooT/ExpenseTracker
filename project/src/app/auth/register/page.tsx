@@ -1,29 +1,27 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { addToast } from "@heroui/react";
+import React, { useState } from "react";
+import { redirect, useRouter } from "next/navigation";
+import { addToast, Button, Input } from "@heroui/react";
 import Link from "next/link";
 import Loading from "@/components/global/loading";
-
-export interface RegisterUserRequestDTO {
-  username: string;
-  password: string;
-  firstName: string;
-}
+import { RegisterUserRequestDTO } from "@/types/api/RegisterUserRequestDTO";
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const formRef = useRef<HTMLFormElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
 
-  const register = async (formData: FormData) => {
+  const router = useRouter();
+
+  const register = async () => {
     setIsLoading(true);
 
     const requestData: RegisterUserRequestDTO = {
-      username: formData.get("username") as string,
-      password: formData.get("password") as string,
-      firstName: formData.get("firstName") as string,
+      username,
+      password,
+      firstName,
     };
 
     try {
@@ -35,10 +33,12 @@ export default function RegisterPage() {
         body: JSON.stringify(requestData),
       });
 
-      formRef.current?.reset();
-      return router.push("/auth/login");
+      router.push("/auth/login");
     } catch (err: any) {
       console.log(err);
+      setUsername("");
+      setPassword("");
+      setFirstName("");
       if (err.message == "Failed to fetch") {
         addToast({
           title: "Offline mode",
@@ -50,7 +50,7 @@ export default function RegisterPage() {
       } else {
         addToast({
           title: "Oops!",
-          description: "Couldn't create user. Try again later",
+          description: "Couldn't register user. Try again later",
           color: "warning",
           timeout: 2000,
           shouldShowTimeoutProgress: true,
@@ -64,47 +64,56 @@ export default function RegisterPage() {
   if (isLoading) return <Loading loadingContent="Registering user..." />;
 
   return (
-    <section>
+    <div className="w-full max-w-md border border-black p-8 bg-white shadow-md rounded">
       <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
-      <form
-        ref={formRef}
-        action={register}
-        className="space-y-4 items-center flex flex-col"
-      >
-        <input
-          type="text"
-          placeholder="Username"
-          className="w-full border px-3 py-2 rounded"
-          required
+
+      <div className="space-y-4 items-center flex flex-col">
+        <Input
+          className="mb-4"
+          isRequired
+          isClearable
+          label="Username"
           name="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          onClear={() => setUsername("")}
         />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border px-3 py-2 rounded"
-          required
-          name="password"
+
+        <Input
+          className="mb-4"
+          label="Password"
+          placeholder="Enter your password"
+          isClearable
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onClear={() => setPassword("")}
         />
-        <input
-          type="text"
-          placeholder="First Name"
-          className="w-full border px-3 py-2 rounded"
-          required
-          name="firstName"
+
+        <Input
+          className="mb-4"
+          label="First name"
+          placeholder="Enter first name"
+          isClearable
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          onClear={() => setFirstName("")}
         />
-        <button
+
+        <Button
           type="submit"
           className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+          onPress={() => register()}
         >
           Register
-        </button>
+        </Button>
+
         <Link
           href="/auth/login"
           className="text-sm text-[#888] transition duration-150 ease hover:text-black"
         >
           Already have an account?
         </Link>
-      </form>
-    </section>
+      </div>
+    </div>
   );
 }

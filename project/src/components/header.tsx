@@ -22,12 +22,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const { isUserAuthenticated, setIsUserAuthenticated } = useUserContext();
 
-  useEffect(() => {
-    setIsUserAuthenticated(isUserAuthenticated);
-  }, [isUserAuthenticated]);
-
   return (
-    <Navbar onMenuOpenChange={setIsMenuOpen}>
+    <Navbar onMenuOpenChange={setIsMenuOpen} position="static">
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -41,8 +37,21 @@ export default function Header() {
 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
-          <Link color="foreground" href="/home">
+          <Link color="foreground" href="/">
             Home
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link
+            href="/statistics"
+            className={
+              !isUserAuthenticated
+                ? "text-gray-400 pointer-events-none cursor-not-allowed"
+                : ""
+            }
+            aria-disabled={!isUserAuthenticated}
+          >
+            Statistics
           </Link>
         </NavbarItem>
         <NavbarItem>
@@ -64,7 +73,19 @@ export default function Header() {
       </NavbarContent>
 
       <NavbarContent justify="end">
-        {!isUserAuthenticated && (
+        {isUserAuthenticated ? (
+          <NavbarItem className="hidden lg:flex">
+            <Button
+              color="primary"
+              variant="flat"
+              onPress={() => {
+                clearCachedData().then(() => setIsUserAuthenticated(false));
+              }}
+            >
+              Logout
+            </Button>
+          </NavbarItem>
+        ) : (
           <>
             <NavbarItem>
               <Button
@@ -87,20 +108,6 @@ export default function Header() {
               </Button>
             </NavbarItem>
           </>
-        )}
-
-        {isUserAuthenticated && (
-          <NavbarItem className="hidden lg:flex">
-            <Button
-              color="primary"
-              variant="flat"
-              onPress={() => {
-                clearCachedData().then(() => setIsUserAuthenticated(false));
-              }}
-            >
-              Logout
-            </Button>
-          </NavbarItem>
         )}
       </NavbarContent>
 
