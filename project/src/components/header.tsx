@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   Button,
@@ -23,7 +23,11 @@ export default function Header() {
   const { isUserAuthenticated, setIsUserAuthenticated } = useUserContext();
 
   return (
-    <Navbar onMenuOpenChange={setIsMenuOpen} position="static">
+    <Navbar
+      isMenuOpen={isMenuOpen}
+      onMenuOpenChange={setIsMenuOpen}
+      position="static"
+    >
       <NavbarContent>
         <NavbarMenuToggle
           aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -113,8 +117,26 @@ export default function Header() {
 
       <NavbarMenu>
         <NavbarMenuItem>
-          <Link color="foreground" href="/home">
+          <Link
+            color="foreground"
+            href="/"
+            onClick={() => setIsMenuOpen(false)}
+          >
             Home
+          </Link>
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <Link
+            href="/statistics"
+            className={
+              !isUserAuthenticated
+                ? "text-gray-400 pointer-events-none cursor-not-allowed"
+                : ""
+            }
+            aria-disabled={!isUserAuthenticated}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            Statistic
           </Link>
         </NavbarMenuItem>
         <NavbarMenuItem>
@@ -126,6 +148,7 @@ export default function Header() {
                 : ""
             }
             aria-disabled={!isUserAuthenticated}
+            onClick={() => setIsMenuOpen(false)}
           >
             Expenses
           </Link>

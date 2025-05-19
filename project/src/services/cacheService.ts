@@ -14,9 +14,14 @@ import {
   saveSummaryChartData,
 } from "@/services/frontendDb/summaryChartService";
 import SummaryChart from "@/types/summaryChart";
+import { getLocalTimeZone, startOfMonth, today } from "@internationalized/date";
 
 export const initAndCacheUserData = async (userId: string) => {
-  const initDataResult = await initData({ userId });
+  const initDataResult = await initData({
+    userId,
+    dateFrom: startOfMonth(today(getLocalTimeZone())).toString(),
+    dateTo: today(getLocalTimeZone()).toString(),
+  });
   await clearCachedData();
   await saveUserData(initDataResult.userData);
   await saveTransactions(initDataResult.transactions);

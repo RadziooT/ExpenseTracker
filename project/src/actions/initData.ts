@@ -2,7 +2,10 @@
 
 import { connectDB } from "@/lib/mongodb";
 import User, { UserDocument } from "@/models/User";
-import { TransactionsQuery } from "@/lib/internal/transactionsQuery";
+import {
+  currentMonthTransactionsAmountQuery,
+  TransactionsQuery,
+} from "@/lib/internal/transactionsQuery";
 import { InitData } from "@/types/initData";
 import { ChartQuery, QueryData } from "@/lib/internal/chartQuery";
 import { InitUserDataRequestDTO } from "@/types/api/InitUserDataRequestDTO";
@@ -35,11 +38,23 @@ export const initData = async (
 
     const transactions = await TransactionsQuery({
       userId: userFound._id,
+      date: {
+        $gte: request.dateFrom,
+        $lte: request.dateTo,
+      },
     });
 
-    const chartData: Array<QueryData> = await ChartQuery(
-      userFound._id.toString(),
-    );
+    const chartData: Array<QueryData> = await ChartQuery({
+      userId: request.userId,
+      dateFrom: request.dateFrom,
+      dateTo: request.dateTo,
+    });
+
+    const currentMonthExpenses = await currentMonthTransactionsAmountQuery({
+      userId: request.userId,
+      dateFrom: request.dateFrom,
+      dateTo: request.dateTo,
+    });
 
     return {
       userData: {
@@ -47,9 +62,7 @@ export const initData = async (
         username: userFound.username,
         firstName: userFound.firstName,
         spendingBudget: userFound.monthlyBudget,
-        //TODO
-        currentMonthIncomeCount: 0,
-        currentMonthExpensesCount: 0,
+        currentMonthExpensesCount: currentMonthExpenses,
       },
       transactions: transactions,
       summaryChart: {

@@ -9,14 +9,43 @@ export interface QueryData {
   label: string;
 }
 
-export const ChartQuery = async (userId: string): Promise<Array<QueryData>> => {
+export interface ChartQueryParams {
+  userId: string;
+  dateFrom: string;
+  dateTo: string;
+}
+
+export const ChartQuery = async (
+  request: ChartQueryParams,
+): Promise<Array<QueryData>> => {
   try {
     await connectDB();
+    const startDate = new Date(request.dateFrom);
+    const endDate = new Date(request.dateTo);
+
     const aggregateData = await TransactionData.aggregate([
       {
         $match: {
           isExpense: true,
-          userId: userId,
+          userId: request.userId,
+        },
+      },
+      {
+        $addFields: {
+          parsedDate: {
+            $dateFromString: {
+              dateString: "$date",
+              format: "%Y-%m-%d",
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          parsedDate: {
+            $gte: startDate,
+            $lte: endDate,
+          },
         },
       },
       {

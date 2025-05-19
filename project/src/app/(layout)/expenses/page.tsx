@@ -27,7 +27,6 @@ export default function ExpenseListPage() {
   const [data, setData] = useState<Array<TransactionData>>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
   const { userId, isUserAuthenticated, setDataRefreshRequired } =
     useUserContext();
 
@@ -93,7 +92,7 @@ export default function ExpenseListPage() {
     }
   };
 
-  async function deleteItem(transaction: TransactionData) {
+  async function deleteTransaction(transaction: TransactionData) {
     try {
       setIsLoading(true);
       await fetch("/api/transactions/delete", {
@@ -223,7 +222,7 @@ export default function ExpenseListPage() {
             >
               <TransactionDetails
                 transactionData={item}
-                onDelete={deleteItem}
+                onDelete={deleteTransaction}
               />
             </li>
           ))}

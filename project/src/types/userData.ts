@@ -3,6 +3,5 @@ export interface UserData {
   username: string;
   firstName: string;
   spendingBudget: number;
-  currentMonthIncomeCount: number;
   currentMonthExpensesCount: number;
 }

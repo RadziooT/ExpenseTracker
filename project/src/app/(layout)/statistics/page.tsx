@@ -17,7 +17,6 @@ Chart.register(ArcElement, Tooltip, Legend);
 export default function Home() {
   const [data, setData] = useState<UserData>({
     currentMonthExpensesCount: 0,
-    currentMonthIncomeCount: 0,
     firstName: "",
     spendingBudget: 0,
     userId: "",
@@ -31,8 +30,7 @@ export default function Home() {
   });
   const [budgetDiff, setBudgetDiff] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { isUserAuthenticated, dataRefreshRequired, setDataRefreshRequired } =
-    useUserContext();
+  const { isUserAuthenticated, dataRefreshRequired } = useUserContext();
   const [noChartData, setNoChartData] = useState<boolean>(false);
 
   let statusText = "";
