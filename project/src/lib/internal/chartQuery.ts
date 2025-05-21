@@ -20,31 +20,15 @@ export const ChartQuery = async (
 ): Promise<Array<QueryData>> => {
   try {
     await connectDB();
-    const startDate = new Date(request.dateFrom);
-    const endDate = new Date(request.dateTo);
 
     const aggregateData = await TransactionData.aggregate([
       {
         $match: {
           isExpense: true,
           userId: request.userId,
-        },
-      },
-      {
-        $addFields: {
-          parsedDate: {
-            $dateFromString: {
-              dateString: "$date",
-              format: "%Y-%m-%d",
-            },
-          },
-        },
-      },
-      {
-        $match: {
-          parsedDate: {
-            $gte: startDate,
-            $lte: endDate,
+          date: {
+            $gte: request.dateFrom,
+            $lte: request.dateTo,
           },
         },
       },

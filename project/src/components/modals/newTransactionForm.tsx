@@ -29,7 +29,7 @@ export default function NewTransactionFormModal({
   onSave,
 }: ModalFormProps) {
   const [form, setForm] = useState({
-    isExpense: true,
+    isExpense: false,
     title: "",
     amount: "",
     date: today(getLocalTimeZone()),

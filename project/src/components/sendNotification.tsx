@@ -165,7 +165,7 @@ export default function SendNotification() {
     }
   };
 
-  if (isLoading) return <Loading loadingContent="Processing..." />;
+  if (isLoading) return <Loading loadingContent="" />;
 
   if (isUserAuthenticated)
     return (

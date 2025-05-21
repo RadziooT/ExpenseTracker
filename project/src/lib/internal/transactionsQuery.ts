@@ -2,14 +2,9 @@
 
 import { connectDB } from "@/lib/mongodb";
 import TransactionData from "@/models/TransactionData";
+import { getCurrentMonthDateRange } from "@/lib/util/CurrentMonthDateService";
 
-export interface CurrentMonthTransactionSumParams {
-  userId: string;
-  dateFrom: string;
-  dateTo: string;
-}
-
-export const TransactionsQuery = async (queryFilter: any) => {
+export const transactionsQuery = async (queryFilter: any) => {
   try {
     await connectDB();
     const transactions = await TransactionData.find(queryFilter);
@@ -31,19 +26,18 @@ export const TransactionsQuery = async (queryFilter: any) => {
   }
 };
 
-export const currentMonthTransactionsAmountQuery = async (
-  request: CurrentMonthTransactionSumParams,
-) => {
+export const currentMonthTransactionsAmountQuery = async (userID: string) => {
   try {
     await connectDB();
-    const startDate = new Date(request.dateFrom);
-    const endDate = new Date(request.dateTo);
+    const dateRange = getCurrentMonthDateRange();
+    const startDate = new Date(dateRange.dateFrom);
+    const endDate = new Date(dateRange.dateTo);
 
     const aggregateData = await TransactionData.aggregate([
       {
         $match: {
           isExpense: true,
-          userId: request.userId,
+          userId: userID,
         },
       },
       {
@@ -72,7 +66,7 @@ export const currentMonthTransactionsAmountQuery = async (
       {
         $group: {
           _id: null,
-          totalAmount: { $sum: "$amountNum" }, // Sum here
+          totalAmount: { $sum: "$amountNum" },
         },
       },
     ]);

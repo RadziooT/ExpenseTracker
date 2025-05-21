@@ -4,7 +4,7 @@ import { connectDB } from "@/lib/mongodb";
 import User, { UserDocument } from "@/models/User";
 import {
   currentMonthTransactionsAmountQuery,
-  TransactionsQuery,
+  transactionsQuery,
 } from "@/lib/internal/transactionsQuery";
 import { InitData } from "@/types/initData";
 import { ChartQuery, QueryData } from "@/lib/internal/chartQuery";
@@ -36,7 +36,7 @@ export const initData = async (
       return Promise.reject("User not found");
     }
 
-    const transactions = await TransactionsQuery({
+    const transactions = await transactionsQuery({
       userId: userFound._id,
       date: {
         $gte: request.dateFrom,
@@ -50,11 +50,9 @@ export const initData = async (
       dateTo: request.dateTo,
     });
 
-    const currentMonthExpenses = await currentMonthTransactionsAmountQuery({
-      userId: request.userId,
-      dateFrom: request.dateFrom,
-      dateTo: request.dateTo,
-    });
+    const currentMonthExpenses = await currentMonthTransactionsAmountQuery(
+      request.userId,
+    );
 
     return {
       userData: {

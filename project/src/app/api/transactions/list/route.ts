@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import { TransactionsQuery } from "@/lib/internal/transactionsQuery";
+import { transactionsQuery } from "@/lib/internal/transactionsQuery";
 import TransactionData from "@/types/transactionData";
 
 export async function POST(req: NextRequest) {
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   try {
     await connectDB();
-    const transactions: Array<TransactionData> = await TransactionsQuery({
+    const transactions: Array<TransactionData> = await transactionsQuery({
       userId,
       date: {
         $gte: dateFrom,

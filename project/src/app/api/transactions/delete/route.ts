@@ -16,9 +16,6 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
-    const body = await req.json();
-    const { transactionId } = body;
-
     await connectDB();
     await TransactionData.deleteOne({
       _id: transactionId,

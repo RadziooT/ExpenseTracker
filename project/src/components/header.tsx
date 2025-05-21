@@ -17,6 +17,7 @@ import Link from "next/link";
 import { WalletIcon } from "@heroicons/react/24/outline";
 import SendNotification from "@/components/sendNotification";
 import { clearCachedData } from "@/services/cacheService";
+import { redirect } from "next/navigation";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
@@ -78,12 +79,15 @@ export default function Header() {
 
       <NavbarContent justify="end">
         {isUserAuthenticated ? (
-          <NavbarItem className="hidden lg:flex">
+          <NavbarItem>
             <Button
               color="primary"
               variant="flat"
               onPress={() => {
-                clearCachedData().then(() => setIsUserAuthenticated(false));
+                clearCachedData().then(() => {
+                  setIsUserAuthenticated(false);
+                  redirect("/");
+                });
               }}
             >
               Logout

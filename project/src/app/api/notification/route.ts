@@ -10,10 +10,18 @@ export async function POST(req: NextRequest) {
   ) {
     throw new Error("Environment variables supplied not sufficient.");
   }
-  const { title, content } = (await req.json()) as {
+  const { title, content, key } = (await req.json()) as {
     title: string;
     content: string;
+    key: string;
   };
+
+  if (key != process.env.WEB_PUSH_GUARD) {
+    return new NextResponse("Unauthorized", {
+      status: 401,
+    });
+  }
+
   try {
     webPush.setVapidDetails(
       `mailto:${process.env.WEB_PUSH_EMAIL}`,

@@ -6,10 +6,14 @@ import { Pie } from "react-chartjs-2";
 import { useUserContext } from "@/app/userContextProvider";
 import Loading from "@/components/global/loading";
 import SummaryChart from "@/types/summaryChart";
-import { getCachedChartData, getCachedUserData } from "@/services/cacheService";
+import {
+  getCachedChartData,
+  getCachedUserData,
+  initAndCacheUserData,
+} from "@/services/cacheService";
 import { UserData } from "@/types/userData";
 import { redirect } from "next/navigation";
-import { Button } from "@heroui/react";
+import { addToast, Button } from "@heroui/react";
 import { Cog6ToothIcon } from "@heroicons/react/24/solid";
 
 Chart.register(ArcElement, Tooltip, Legend);
@@ -28,10 +32,10 @@ export default function Home() {
     xLabels: [],
     yLabels: [],
   });
-  const [budgetDiff, setBudgetDiff] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { isUserAuthenticated, dataRefreshRequired } = useUserContext();
+  const { userId, isUserAuthenticated } = useUserContext();
   const [noChartData, setNoChartData] = useState<boolean>(false);
+  const [budgetDiff, setBudgetDiff] = useState<number>(0);
 
   let statusText = "";
   let color = "";
@@ -41,6 +45,42 @@ export default function Home() {
       redirect("/");
     }
 
+    setIsLoading(true);
+    calculateNewData().then(() => {
+      setIsLoading(false);
+    });
+  }, [isUserAuthenticated]);
+
+  const refreshUserData = async () => {
+    setIsLoading(true);
+    try {
+      await initAndCacheUserData(userId!);
+      await calculateNewData();
+    } catch (err: any) {
+      console.log(err);
+      if (err.message == "Failed to fetch") {
+        addToast({
+          title: "Offline mode",
+          description: "Data synchronization is available only in online mode",
+          color: "warning",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
+        });
+      } else {
+        addToast({
+          title: "Oops!",
+          description: "Couldn't synchronize data. Try again later",
+          color: "warning",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const calculateNewData = async () => {
     getCachedUserData().then((userData: UserData) => {
       getCachedChartData().then((chartData: SummaryChart) => {
         const pieChart = {
@@ -76,11 +116,9 @@ export default function Home() {
 
         setData(userData);
         setPieData(pieChart);
-        console.log(pieChart);
-        setIsLoading(false);
       });
     });
-  }, [isUserAuthenticated]);
+  };
 
   if (isLoading) return <Loading loadingContent="Loading data..." />;
 
@@ -96,12 +134,13 @@ export default function Home() {
       </div>
 
       <div className="w-full mt-2 max-w-md">
-        {dataRefreshRequired && (
-          <Button className="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium mb-2 py-2 px-4 rounded-full transition-colors">
-            <Cog6ToothIcon className="h-5 w-5 text-gray-600" />
-            RefreshData
-          </Button>
-        )}
+        <Button
+          className="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium mb-2 py-2 px-4 rounded-full transition-colors"
+          onPress={refreshUserData}
+        >
+          <Cog6ToothIcon className="h-5 w-5 text-gray-600" />
+          RefreshData
+        </Button>
         <h1 className="text-lg font-semibold">Current month spending:</h1>
         <div className="relative w-full" style={{ paddingBottom: "100%" }}>
           <div className="absolute inset-0">

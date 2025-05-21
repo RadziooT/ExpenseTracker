@@ -5,19 +5,15 @@ import React, { createContext, ReactNode, useContext, useState } from "react";
 interface UserContextType {
   userId: string | null;
   isUserAuthenticated: boolean;
-  dataRefreshRequired: boolean;
   setUserId: (id: string) => void;
   setIsUserAuthenticated: (status: boolean) => void;
-  setDataRefreshRequired: (status: boolean) => void;
 }
 
 const UserContext = createContext<UserContextType>({
   userId: null,
   isUserAuthenticated: false,
-  dataRefreshRequired: false,
   setIsUserAuthenticated(status: boolean): void {},
   setUserId(id: string): void {},
-  setDataRefreshRequired(refreshRequired: boolean): void {},
 });
 
 interface UserProviderProps {
@@ -27,8 +23,6 @@ interface UserProviderProps {
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [userId, setUserIdState] = useState<string | null>(null);
   const [isUserAuthenticated, setIsUserAuthenticated] =
-    useState<boolean>(false);
-  const [dataRefreshRequired, setDataRefreshRequired] =
     useState<boolean>(false);
 
   const setUserId = (id: string) => {
@@ -40,10 +34,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       value={{
         userId,
         isUserAuthenticated,
-        dataRefreshRequired,
         setUserId,
         setIsUserAuthenticated,
-        setDataRefreshRequired,
       }}
     >
       {children}

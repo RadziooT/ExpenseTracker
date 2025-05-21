@@ -27,8 +27,7 @@ export default function ExpenseListPage() {
   const [data, setData] = useState<Array<TransactionData>>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { userId, isUserAuthenticated, setDataRefreshRequired } =
-    useUserContext();
+  const { userId, isUserAuthenticated } = useUserContext();
 
   function setDateRange(
     newDateFrom: CalendarDate,
@@ -100,10 +99,9 @@ export default function ExpenseListPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ transactionId: transaction.id }),
+        body: JSON.stringify({ userId, transactionId: transaction.id }),
       });
 
-      setDataRefreshRequired(true);
       refreshData(dateFrom, dateTo);
     } catch (err: any) {
       console.log(err);
@@ -148,9 +146,8 @@ export default function ExpenseListPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(transaction),
+        body: JSON.stringify({ transaction }),
       });
-      setDataRefreshRequired(true);
       refreshData(dateFrom, dateTo);
     } catch (err: any) {
       console.log(err);
