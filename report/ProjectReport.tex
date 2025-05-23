@@ -115,13 +115,13 @@ Projekt
 \newcommand{\ww}{.25}
 
 \section{Wstęp}
-Celem projektu było zaprojektowanie aplikacji PWA umożliwiającej śledzenie wydatków i przychodów. W celach przechowywania danych użytkownika należało użyć localstorage. Do persystencji danych o wydatkach w wymaganiach sprecyzowane zostało MongoDB. W celu informowania użytkowników o ważnych wydarzeniach finansowych zaimplementowano powiadomienia push.
+Celem projektu było stworzenie aplikacji PWA umożliwiającej śledzenie wydatków i przychodów. W celach przechowywania danych użytkownika należało użyć localstorage. Do persystencji danych o wydatkach w wymaganiach sprecyzowane zostało MongoDB. W celu informowania użytkowników o ważnych wydarzeniach finansowych zaimplementowano powiadomienia push.
 
 \section{Wykorzystane technologie}
-Projekt został zrealizowany korzystając z frameworka NextJS pozwalające na stworzenie backendu oraz frontendu aplikacji w pojedynczym projekcie. Do obsługi funkcjonalności PWA wykorzystano bibliotekę serwist. W celu komunikacji z bazą danych MongoDB zastosowano bibliotekę mongoose.
+Projekt został zrealizowany korzystając z frameworka NextJS, który pozwala na stworzenie backendu oraz frontendu aplikacji w pojedynczym projekcie. Do obsługi funkcjonalności PWA wykorzystano bibliotekę serwist. W celu komunikacji z bazą danych MongoDB zastosowano bibliotekę mongoose.
 
 \section{Funkcjonalności aplikacji}
-W ramach projektu stworzono aplikacje pozwalającą na zarządzanie przychodami oraz wydatkami użytkowników wraz z prezentowaniem wykresów o wydatkach aktualnego miesiąca. Dane przechowywane są w MongoDB oraz localstorage, dzięki czemu aplikacja umożliwia przeglądanie historii wydatków z aktualnego miesiąca w trybie offline. Użytkownik ma możliwość ustawienia miesięcznego budżetu na wydatki. W przypadku zbliżenia bądź przekroczenia ustawionej kwoty wysyłane jest powiadomienie push z informacją jeśli użytkownik włączył tę funkcjonalność. 
+W ramach projektu stworzono aplikacje pozwalającą na zarządzanie przychodami oraz wydatkami użytkowników wraz z prezentowaniem wykresów o wydatkach z aktualnego miesiąca. Dane przechowywane były w MongoDB oraz localstorage, dzięki czemu aplikacja umożliwia przeglądanie historii wydatków z aktualnego miesiąca w trybie offline. Użytkownik ma możliwość ustawienia miesięcznego budżetu na wydatki. W przypadku zbliżenia bądź przekroczenia ustawionej kwoty wysyłane jest powiadomienie push z informacją, jeśli użytkownik włączył tę funkcjonalność. 
 Zaimplementowane zostało 5 ekranów:
 
 \begin{itemize}
@@ -134,65 +134,68 @@ Zaimplementowane zostało 5 ekranów:
 
 Framework NextJS został wybrany w celu zdobycia dodatkowego doświadczenia w nieznanej technologii. Implementacja trybu offline wymusiła odejście od najnowszej konwencji tworzenia komunikacji frontend-backend w projektach korzystających z NextJS. Zamiast akcji serwerowych należało wykorzystać starsze podejście używające komunikacji REST.
 W celu stylizacji wykorzystano bibliotekę Tailwind 4 oraz HeroUI. Wersja Tailwind wymusiła korzystanie z wersji beta biblioteki HeroUI.
-
 W całej aplikacji zastosowano również komunikaty toast pozwalające na uspójnienie ostrzeżeń oraz komunikatów błędów.
+
+\newpage
 
 \subsection{Nagłówek oraz stopka}
 Nagłówek aplikacja pozwala na nawigacje pomiędzy ekranami. Ekrany statystyk oraz wydatków dostępne są jedynie po zalogowaniu. Dla wielkości ekranu telefonów nagłówek prezentuje wysuwające się menu natomiast dla wielkości tabletowej oraz komputerów wszystkie informacje zawarte są w nierozwijalnym nagłówku. Stopka zawiera informacje o autorze aplikacji.
 Subskrypcja powiadomień push dostępna jest w nagłówku za pomocą przełącznika prezentującego aktualny stan.
-% \begin{figure}[!h]%
-%   \centering
-%   \subfloat{{\includegraphics[width=0.45\linewidth]{img/header_1.png} }}%
-%   \qquad
-%   \subfloat{{\includegraphics[width=0.45\linewidth]{img/header_2.png} }}%
-%   \qquad
-%   \caption{Nagłówek - widok www oraz mobilny}%
-% \end{figure}
 
 \subsection{Ekran powitalny}
 Ekran powitalny zawiera krótki opis aplikacji. Nie prezentuje on żadnych danych użytkownika. Zaimplementowana została funkcja sprawdzająca, czy w sesji znajdują się dane użytkownika. Brak danych powoduje przekierowanie na ten ekran.
-% \begin{figure}[!h]
-% 	\begin{center}
-% 		\includegraphics[width=0.7\linewidth]{img/welcome_screen.png}
-% 	\end{center}
-%   \caption{Ekran powitalny}
-% \end{figure}
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{img/home_screen.png}
+	\end{center}
+  \caption{Ekran powitalny}
+\end{figure}
+
+\newpage
 
 \subsection{Ekran logowania}
 Ekran logowania pozwala na zalogowanie do aplikacji. Po wpisaniu poprawnych danych backend zwraca id użytkownika oraz wstępne dane zapisywane w localstorage. Użytkownik po zalogowaniu może przeglądać swoje dane w trybie offline. Nie zaimplementowano walidacji pól. Próba zalogowania się bez połączenia z internetem powoduje pojawienie się komunikatu o braku dostępu do sieci.
-% \begin{figure}[!h]
-% 	\begin{center}
-% 		\includegraphics[width=0.7\linewidth]{img/login_screen.png}
-% 	\end{center}
-%   \caption{Ekran logowania}
-% \end{figure}
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{img/login_screen.png}
+	\end{center}
+  \caption{Ekran logowania}
+\end{figure}
 
-\subsection{Ekran logowania}
+\newpage
+
+\subsection{Ekran rejestracji}
 Ekran rejestracji pozwala na rejestrowanie użytkowników. Podobnie do ekranu logowania nie zaimplementowano walidacji pól. Po utworzeniu użytkownika następuje przekierowanie do ekranu logowania. Próba utworzenia użytkownika w trybie offline powoduje pojawienie się odpowiedniego komunikatu.
-% \begin{figure}[!h]
-% 	\begin{center}
-% 		\includegraphics[width=0.7\linewidth]{img/register_screen.png}
-% 	\end{center}
-%   \caption{Ekran rejestracji użytkownika}
-% \end{figure}
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{img/register_screen.png}
+	\end{center}
+  \caption{Ekran rejestracji użytkownika}
+\end{figure}
+
+\newpage
 
 \subsection{Ekran statystyk}
-Ekran statystyk pozwala na monitorowanie i zmianę miesięcznego budżetu, odświeżenie danych w localstorage oraz analizę miesięcznych wydatków prezentowanych na wykresie kołowym. W celu przedstawienia zebranych danych wykorzystano bibliotekę ChartJS, z która zaznajomiono się w trakcie ćwiczenia 3 oraz 4. Ekran ten jest niedostępny dla niezalogowanych użytkowników.
-% \begin{figure}[!h]
-% 	\begin{center}
-% 		\includegraphics[width=0.7\linewidth]{img/statistics_screen.png}
-% 	\end{center}
-%   \caption{Ekran statystyk}
-% \end{figure}
+Ekran statystyk pozwala na monitorowanie i zmianę miesięcznego budżetu, odświeżenie danych w localstorage oraz analizę miesięcznych wydatków prezentowanych na wykresie kołowym. W celu przedstawienia zebranych danych wykorzystano bibliotekę ChartJS, z którą zaznajomiono się w trakcie ćwiczenia 3 oraz 4. Ekran ten jest niedostępny dla niezalogowanych użytkowników.
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{img/statistics_screen.png}
+	\end{center}
+  \caption{Ekran statystyk}
+\end{figure}
+
+\newpage
 
 \subsection{Ekran wydatków i przychodów}
 Ekran wydatków i przychodów pozwala na wybieranie zakresu wyświetlanych danych. Zalogowany użytkownik może przeglądać, usuwać oraz dodawać transakcje przypisane do jego konta. Przychody oznaczone są zielonym kolorem. W trybie offline dostępność danych zmniejsza się do aktualnego miesiąca, a dla usuwania i dodawania transakcji prezentowany jest toast o braku dostępności funkcjonalności bez dostępu do sieci. W celu uwzględnienia nowych wydatków na ekranie statystyk użytkownik musi kliknąć przycisk odświeżenia danych. Jeśli przy dodawaniu wydatku użytkownik przekroczy bądź zbliży się do ustawionego budżetu, wysyłany jest komunikat push.
-% \begin{figure}[!h]
-% 	\begin{center}
-% 		\includegraphics[width=0.7\linewidth]{img/expense_screen.png}
-% 	\end{center}
-%   \caption{Ekran wydatków i przychodów}
-% \end{figure}
+\begin{figure}[!h]
+	\begin{center}
+		\includegraphics[width=0.7\linewidth]{img/expenses_screen.png}
+	\end{center}
+  \caption{Ekran wydatków i przychodów}
+\end{figure}
+
+\newpage
 
 \section{Funkcjonalności PWA}
 W celu zaimplementowania działania pwa dostępne były 4 rozwiązania:
@@ -202,7 +205,7 @@ W celu zaimplementowania działania pwa dostępne były 4 rozwiązania:
   \item biblioteka ducanh2912/next-pwa będąca forkiem next-pwa
   \item serwist
 \end{itemize}
-Po przeprowadzonej analizie większość źródeł rekomendowała korzystanie z serwist co było powodem wybrania tej biblioteki. 
+Po przeprowadzonej analizie większość źródeł rekomendowała korzystanie z serwist, co było powodem wybrania tej biblioteki. 
 
 \subsection{Service worker}
 Logika service workera została utworzona w pliku sw.ts. Serwist umożliwiło sprawne dodanie wymaganych funkcjonalności. W celu dodania powiadomień push stworzono endpoint do subskrybowania wraz z zapisem danych Subskrypcji w MongoDB oraz endpoint pozwalający na wysyłanie powiadomień push. Celem aplikacji nie było zaimplementowanie autoryzacji i autentykacji, dlatego endpoint wysyłający powiadomienia sprawdza, czy w wysyłanych danych zawarty jest również klucz ustawiany w zmiennych środowiskowych deploymentu. Dla trybu offline dodano również przechwytywane akcji fetch, w której jeśli zapytanie dotyczy pobrania danych listy a użytkownik jest w trybie offline zwracane są dane z localstorage. Wybrano również domyślną strategię cachowania udostępnianą przez serwist.
@@ -214,11 +217,11 @@ Plik manifestu oparto o ćwiczenia 3 i 4. Dodano ikony pasujące do tematyki pro
 Tryb offline pozwala zalogowanemu użytkownikowi na sprawdzenie transakcji dodanych w aktualnym miesiącu. Dostępne jest również przeglądanie pozostałego budżetu oraz wykresu kołowego wydatków danego miesiąca. W celu edycji danych użytkownik musi przejść do trybu online.
 
 \section{Wdrożenie aplikacji}
-W celu wdrożenia aplikacji na hostingu wykorzystano serwis Vercel rekomendowany przez twórców NextJS. Baza danych została uruchomiona korzystając z Atlas Database. Zarówno Vercel jak i Atlas Database posiadały wystarczająco zadowalające darmowe plany. Probles wdrożenia aplikacja przebiegł sprawnie. Jedynym problemem, który napotkano był brak zdefiniowanego adresu ip bazy danych w serwisie Vercel. Skutkiem tego był brak możliwości zalogowania użytkownika oraz korzystania z funkcjonalności aplikacji.
+W celu wdrożenia aplikacji wykorzystano serwis Vercel rekomendowany przez twórców NextJS. Baza danych została uruchomiona korzystając z Atlas Database. Zarówno Vercel jak i Atlas Database posiadały wystarczająco zadowalające darmowe plany. Probles wdrożenia aplikacja przebiegł sprawnie. Jedynym problemem, który napotkano był brak zdefiniowanego adresu ip bazy danych w serwisie Vercel. Skutkiem tego był brak możliwości zalogowania użytkownika oraz korzystania z funkcjonalności aplikacji.
 
 \section{Napotkane problemy}
 \subsection{Zapętlenie budowania aplikacji po wdrożeniu PWA}
-Skonfigurowaniu biblioteki serwist uniemożliwiło korzystanie z aplikacji. Generowane pliki service workera odświeżały budowanie aplikacji przez webpack. Dla uruchomienia aplikacji w trybie dev wymagane było dodanie dodatkowej konfiguracji wyłączającej pwa. Testowanie funkcjonalności offline było czasochłonne, ponieważ wymagało zbudowania aplikacji i uruchomienia jest w trybie release.
+Skonfigurowaniu biblioteki serwist uniemożliwiło korzystanie z aplikacji. Generowane pliki service workera odświeżały budowanie aplikacji przez webpack. Dla uruchomienia aplikacji w trybie dev wymagane było dodanie dodatkowej konfiguracji wyłączającej pwa. Testowanie funkcjonalności offline było czasochłonne, ponieważ wymagało zbudowania aplikacji i uruchomienia jej w trybie release.
 
 \subsection{Brak wsparcia Tailwind CSS 4 w bibliotece HeroUI}
 W celu skorzystania z HeroUI należało dodatkowo skonfigurować zależności projektu oraz dostępne pliki. Style biblioteki nie były automatycznie wykrywane przez projekt. Rozwiązaniem okazało się manualne dodanie zależności w pliku globals.css.
@@ -230,6 +233,6 @@ Po uwzględnieniu ekranu ładowania musiała nastąpić reorganizacja kodu proje
 W ramach projektu dodatkowym celem było zapoznanie się z nowymi technologiami. Wykorzystanie NextJS do aplikacji obsługującej tryb offline nie było optymalnym rozwiązaniem. Udało się jednak stworzyć aplikacje spełniającą wymogi projektu. W ramach pracy pogłębiono wiedzę o IndexedDB, bazach nierelacyjnych oraz hostowaniu aplikacji. Poznano również nieużywane wcześniej technologie takie jak React, Tailwind oraz NextJS. Różniły się one w pewnym stopniu od narzędzi dotychczas stosowanych przez autora takich jak Angular oraz Bootstrap.
 
 \subsection{Potencjalny rozwój projektu}
-Pierwszy potencjalny krok rozwoju aplikacji to integracja biblioteki umożliwiającej autoryzacji oraz dodanie walidacji pól. Dodatkowe usprawnienia uwzględniają poszerzenie dostępnych ekranów statystyk, analizę trybu offline o zakres danych, które warto prezentować użytkownikowi oraz dodanie panelu administratorskiego pozwalającego na tworzenie powiadomień push z przeglądarki.
+Pierwszy potencjalny krok rozwoju aplikacji to uwzględnienie biblioteki umożliwiającej autoryzację użytkownika oraz dodanie walidacji pól. Dodatkowe usprawnienia uwzględniają poszerzenie dostępnych ekranów statystyk, analizę trybu offline o zakres danych, które warto prezentować użytkownikowi oraz dodanie panelu administratorskiego pozwalającego na tworzenie powiadomień push z przeglądarki.
 
 \end{document}
