@@ -71,7 +71,7 @@ export const currentMonthTransactionsAmountQuery = async (userID: string) => {
       },
     ]);
 
-    return aggregateData[0]?.totalAmount;
+    return aggregateData[0]?.totalAmount || 0;
   } catch (e) {
     console.log(e);
     return Promise.reject(e);

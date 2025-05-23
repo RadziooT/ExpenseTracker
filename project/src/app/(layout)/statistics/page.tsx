@@ -1,7 +1,7 @@
 "use client";
 
 import { ArcElement, Chart, ChartData, Legend, Tooltip } from "chart.js";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { useUserContext } from "@/app/userContextProvider";
 import Loading from "@/components/global/loading";
@@ -13,8 +13,9 @@ import {
 } from "@/services/cacheService";
 import { UserData } from "@/types/userData";
 import { redirect } from "next/navigation";
-import { addToast, Button } from "@heroui/react";
+import { addToast, Button, Input } from "@heroui/react";
 import { Cog6ToothIcon } from "@heroicons/react/24/solid";
+import { ChangeUserBudgetRequestDTO } from "@/types/api/ChangeUserBudgetRequestDTO";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -36,6 +37,7 @@ export default function Home() {
   const { userId, isUserAuthenticated } = useUserContext();
   const [noChartData, setNoChartData] = useState<boolean>(false);
   const [budgetDiff, setBudgetDiff] = useState<number>(0);
+  const [newBudget, setNewBudget] = useState<string>("");
 
   let statusText = "";
   let color = "";
@@ -120,6 +122,48 @@ export default function Home() {
     });
   };
 
+  const updateUserBudget = async () => {
+    const request: ChangeUserBudgetRequestDTO = {
+      userId: userId!,
+      budget: parseFloat(newBudget),
+    };
+
+    try {
+      setIsLoading(true);
+
+      await fetch("/api/user/budget", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
+      });
+
+      await refreshUserData();
+    } catch (err: any) {
+      console.log(err);
+      if (err.message == "Failed to fetch") {
+        addToast({
+          title: "Offline mode",
+          description: "Data modification is available only in online mode",
+          color: "warning",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
+        });
+      } else {
+        addToast({
+          title: "Oops!",
+          description: "Couldn't change budget. Try again later",
+          color: "warning",
+          timeout: 2000,
+          shouldShowTimeoutProgress: true,
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) return <Loading loadingContent="Loading data..." />;
 
   return (
@@ -131,6 +175,23 @@ export default function Home() {
           <p className={color}>{budgetDiff}</p>
           <p className={`mt-1 font-medium ${color}`}>{statusText}</p>
         </div>
+
+        <Input
+          className="mb-4"
+          isRequired
+          type="number"
+          label="Budget"
+          name="budget"
+          value={newBudget}
+          onChange={(e) => setNewBudget(e.target.value)}
+        />
+        <Button
+          className="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium mb-2 py-2 px-4 rounded-full transition-colors"
+          onPress={() => updateUserBudget()}
+        >
+          <Cog6ToothIcon className="h-5 w-5 text-gray-600" />
+          Set new budget
+        </Button>
       </div>
 
       <div className="w-full mt-2 max-w-md">
