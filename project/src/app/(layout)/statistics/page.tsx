@@ -99,6 +99,8 @@ export default function Home() {
 
         if (chartData.data.length < 1) {
           setNoChartData(true);
+        } else {
+          setNoChartData(false);
         }
 
         setBudgetDiff(
