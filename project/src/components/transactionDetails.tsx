@@ -5,7 +5,9 @@ import TransactionData from "@/types/transactionData";
 import {
   AdjustmentsHorizontalIcon,
   HeartIcon,
-  HomeIcon,
+  ShoppingBagIcon,
+  ShoppingCartIcon,
+  TruckIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
 
@@ -32,10 +34,18 @@ export default function TransactionDetails({
 
   const getCategoryIcon = (category?: string) => {
     switch (category) {
-      case "Home":
-        return <HomeIcon className="w-6 h-6 text-gray-500"></HomeIcon>;
+      case "Shopping":
+        return (
+          <ShoppingBagIcon className="w-6 h-6 text-gray-500"></ShoppingBagIcon>
+        );
       case "Health":
         return <HeartIcon className="w-6 h-6 text-gray-500"></HeartIcon>;
+      case "Food":
+        return (
+          <ShoppingCartIcon className="w-6 h-6 text-gray-500"></ShoppingCartIcon>
+        );
+      case "Transport":
+        return <TruckIcon className="w-6 h-6 text-gray-500"></TruckIcon>;
       default:
         return (
           <AdjustmentsHorizontalIcon className="w-6 h-6 text-gray-300"></AdjustmentsHorizontalIcon>
